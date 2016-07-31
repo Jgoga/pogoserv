@@ -1,0 +1,9 @@
+/data/
+/lib/
+/__pycache__/
+/target/
+/protobuf-patches/
+/.settings
+/.classpath
+/.project
+/patc-protobuf.sh
