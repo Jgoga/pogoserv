@@ -272,7 +272,7 @@ public class GameSettings {
 				p.baseDef = s.getBaseDefense();
 				p.dodgeEnergyDelta = s.getDodgeEnergyDelta();
 				p.quickMoves = ps.getQuickMovesList().toArray(new PokemonMove[ps.getQuickMovesCount()]);
-				p.cinematicMoves = ps.getCinematicMovesList().toArray(new PokemonMove[ps.getCinematicMovesCount()]);
+				p.chargeMoves = ps.getCinematicMovesList().toArray(new PokemonMove[ps.getCinematicMovesCount()]);
 				p.animationTime = Util.toFloatArray(ps.getAnimationTimeList());
 				p.evolutionIds = new int[ps.getEvolutionIdsCount()];
 				for(int j=0;j<p.evolutionIds.length;j++)

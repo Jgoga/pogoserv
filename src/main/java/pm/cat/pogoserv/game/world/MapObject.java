@@ -25,7 +25,7 @@ public class MapObject {
 		return uid;
 	}
 	
-	public String getHexUid(){
+	public String getUidString(){
 		return Long.toHexString(uid);
 	}
 	

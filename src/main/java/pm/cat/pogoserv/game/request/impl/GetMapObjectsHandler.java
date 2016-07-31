@@ -69,7 +69,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 						// TODO: idk if these values are correct. Probably not
 						if(dist < 50){
 							mc.addCatchablePokemons(mp.clear()
-								.setSpawnPointId(p.source.getHexUid())
+								.setSpawnPointId(WorldCell.uidString(cell, p))
 								.setEncounterId(p.getUid())
 								.setExpirationTimestampMs(p.disappearTimestamp)
 								.setLatitude(lat)
@@ -80,7 +80,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 								.setLastModifiedTimestampMs(p.appearTimestamp)
 								.setLatitude(lat)
 								.setLongitude(lng)
-								.setSpawnPointId(p.source.getHexUid())
+								.setSpawnPointId(WorldCell.uidString(cell, p))
 								.setPokemonData(pd.clear().setPokemonIdValue(p.pokemon.def.id))
 								.setTimeTillHiddenMs((int) (p.disappearTimestamp - ts)));
 								//.setTimeTillHiddenMs(5000));

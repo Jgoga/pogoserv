@@ -9,7 +9,7 @@ import com.google.common.geometry.S2CellId;
 public class WorldCell {
 	static final int LEVEL = 15;
 	
-	private final S2Cell cell;
+	private final S2CellId cellId;
 	private final ConcurrentHashMap<Long, MapObject> objects = new ConcurrentHashMap<>();
 	
 	WorldCell(long s2cellid){
@@ -17,15 +17,15 @@ public class WorldCell {
 	}
 	
 	WorldCell(S2CellId s2cellid){
-		this.cell = new S2Cell(s2cellid);
-	}
-	
-	S2Cell getS2Cell(){
-		return cell;
+		this.cellId = s2cellid;
 	}
 	
 	public void add(MapObject obj){
 		objects.put(obj.getUid(), obj);
+	}
+	
+	public MapObject get(long uid){
+		return objects.get(uid);
 	}
 	
 	public void remove(long uid){
@@ -38,11 +38,31 @@ public class WorldCell {
 	
 	@Override
 	public String toString(){
-		long id = cell.id().id();
+		long id = cellId.id();
 		String binary = Long.toBinaryString(id);
 		while(binary.length() < 64)
 			binary = "0" + binary;
-		return String.format("%-20d:%s:%s", id, binary, cell.toString());
+		return String.format("%-20d:%s:%s", id, binary, cellId.toString());
+	}	
+	
+	public static String uidString(WorldCell cell, MapObject obj){
+		return uidString(cell.cellId.id(), obj.getUid());
+	}
+	
+	public static String uidString(WorldCell cell, long objectId){
+		return uidString(cell.cellId.id(), objectId);
+	}
+	
+	public static String uidString(long cellId, long objectId){
+		return Long.toHexString(cellId) + "." + Long.toHexString(objectId);
+	}
+	
+	public static long[] parseUid(String uidString){
+		int idx = uidString.indexOf('.');
+		return new long[] {
+			Long.parseLong(uidString.substring(0, idx), 16),
+			Long.parseLong(uidString.substring(idx+1), 16)
+		};
 	}
 
 }

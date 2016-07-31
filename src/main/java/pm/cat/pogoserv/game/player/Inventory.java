@@ -30,14 +30,13 @@ public class Inventory {
 		return pokemon.get(uid);
 	}
 	
-	public TSNode<Item> addItem(ItemDef def){
-		TSNode<Item> ret = pool.allocate(new Item(def));
-		items.put(def.id, ret);
+	public TSNode<Item> item(ItemDef def){
+		TSNode<Item> ret = items.get(def.id);
+		if(ret == null){
+			ret = pool.allocate(new Item(def));
+			items.put(def.id, ret);
+		}
 		return ret;
-	}
-	
-	public TSNode<Item> getItem(int id){
-		return items.get(id);
 	}
 	
 	public void removePokemon(long uid){

@@ -16,7 +16,7 @@ public class PokemonDef {
 	public int dodgeEnergyDelta;
 	
 	public PokemonMove[] quickMoves;
-	public PokemonMove[] cinematicMoves;
+	public PokemonMove[] chargeMoves;
 	public int[] evolutionIds;
 	public int evolutionPips;
 	

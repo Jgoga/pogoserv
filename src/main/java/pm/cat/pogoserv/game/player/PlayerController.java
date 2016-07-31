@@ -11,6 +11,7 @@ import POGOProtos.Data.Player.POGOProtosDataPlayer.Currency;
 import POGOProtos.Data.Player.POGOProtosDataPlayer.PlayerAvatar;
 import POGOProtos.Enums.POGOProtosEnums.Gender;
 import POGOProtos.Enums.POGOProtosEnums.TeamColor;
+import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
 import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope.AuthInfo;
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.util.Util;
@@ -41,6 +42,12 @@ public class PlayerController {
 		
 		ret.pokecoins.write().amt = 100;
 		ret.stardust.write().amt = 1337;
+		ret.inventory.maxItemStorage = game.settings.invBaseBagItems;
+		ret.inventory.maxPokemonStorage = game.settings.invBasePokemon;
+		// Just some test pokeballs
+		ret.inventory.item(game.settings.getItem(ItemId.ITEM_POKE_BALL_VALUE)).write().count = 50;
+		ret.inventory.item(game.settings.getItem(ItemId.ITEM_GREAT_BALL_VALUE)).write().count = 25;
+		ret.inventory.item(game.settings.getItem(ItemId.ITEM_MASTER_BALL_VALUE)).write().count = 10;
 
 		// TODO: Database stuff goes here
 		PlayerInfo.setDefaults(ret.stats);

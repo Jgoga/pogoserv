@@ -56,14 +56,8 @@ public class Main {
 		
 		s.listen();
 		
-		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*60, 1000*30, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17 }, 62.601, 29.7636, g.uidManager.next());
+		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*60, 1000*30, new int[]{ /*1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17,*/ 150, 144, 145, 146 }, 62.601, 29.7636, g.uidManager.next());
 		g.worldController.addObject(spawn);
-		//for(int i=1;i<=10;i++)
-		//	g.worldController.spawnPokemon(spawn, g.pokegen.createRandom(g.settings.getPokemon(i)), 1000*60*60);
-		// g.worldController.spawnPokemon(spawn, g.pokegen.createRandom(g.settings.getPokemon(10)), 1000*60*60);
-		// g.worldController.spawnPokemon(spawn, g.pokegen.createRandom(g.settings.getPokemon(16)), 1000*60*60);
-		// g.worldController.spawnPokemon(spawn, g.pokegen.createRandom(g.settings.getPokemon(151)), 1000*60*60); // ;)
-		// System.out.println(S2CellId.fromLatLng(S2LatLng.fromDegrees(mp.getLatitude(), mp.getLongitude())).parent(15).id());
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override

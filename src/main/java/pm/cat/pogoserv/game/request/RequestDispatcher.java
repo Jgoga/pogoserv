@@ -17,6 +17,7 @@ import pm.cat.pogoserv.game.config.GameSettings;
 import pm.cat.pogoserv.game.request.impl.DownloadItemTemplatesHandler;
 import pm.cat.pogoserv.game.request.impl.DownloadRemoteConfigVersionHandler;
 import pm.cat.pogoserv.game.request.impl.DownloadSettingsHandler;
+import pm.cat.pogoserv.game.request.impl.EncounterHandler;
 import pm.cat.pogoserv.game.request.impl.GetAssetDigestHandler;
 import pm.cat.pogoserv.game.request.impl.GetDownloadUrlsHandler;
 import pm.cat.pogoserv.game.request.impl.GetInventoryHandler;
@@ -80,6 +81,7 @@ public class RequestDispatcher implements Filter<GameRequest> {
 		setHandler(RequestType.GET_MAP_OBJECTS, new GetMapObjectsHandler());
 		setHandler(RequestType.DOWNLOAD_ITEM_TEMPLATES, new DownloadItemTemplatesHandler());
 		setHandler(RequestType.GET_DOWNLOAD_URLS, new GetDownloadUrlsHandler());
+		setHandler(RequestType.ENCOUNTER, new EncounterHandler());
 		return this;
 	}
 
