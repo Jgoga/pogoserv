@@ -21,7 +21,7 @@ public class WorldCell {
 	}
 	
 	public void add(MapObject obj){
-		objects.put(obj.getUid(), obj);
+		objects.put(obj.getUID(), obj);
 	}
 	
 	public MapObject get(long uid){
@@ -46,7 +46,7 @@ public class WorldCell {
 	}	
 	
 	public static String uidString(WorldCell cell, MapObject obj){
-		return uidString(cell.cellId.id(), obj.getUid());
+		return uidString(cell.cellId.id(), obj.getUID());
 	}
 	
 	public static String uidString(WorldCell cell, long objectId){

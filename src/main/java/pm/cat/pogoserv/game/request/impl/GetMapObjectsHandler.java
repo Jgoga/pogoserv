@@ -70,7 +70,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 						if(dist < 50){
 							mc.addCatchablePokemons(mp.clear()
 								.setSpawnPointId(WorldCell.uidString(cell, p))
-								.setEncounterId(p.getUid())
+								.setEncounterId(p.getUID())
 								.setExpirationTimestampMs(p.disappearTimestamp)
 								.setLatitude(lat)
 								.setLongitude(lng));
@@ -90,7 +90,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 							mc.addNearbyPokemons(np.clear()
 								.setPokemonIdValue(p.pokemon.def.id)
 								.setDistanceInMeters((float) dist)
-								.setEncounterId(p.getUid()));
+								.setEncounterId(p.getUID()));
 						}
 						
 						System.out.println("poke: " + o + " | dist=" + dist);

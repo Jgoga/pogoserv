@@ -27,7 +27,7 @@ public class WorldController {
 		}
 		Log.d("WorldCtrlr", "Removing %s", obj);
 		obj.onRemove(game, cell);
-		cell.remove(obj.getUid());
+		cell.remove(obj.getUID());
 	}
 	
 }

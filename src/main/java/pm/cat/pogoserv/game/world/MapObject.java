@@ -1,8 +1,9 @@
 package pm.cat.pogoserv.game.world;
 
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.util.Unique;
 
-public class MapObject {
+public class MapObject implements Unique {
 
 	private final long uid;
 	protected double latitude, longitude;
@@ -21,12 +22,9 @@ public class MapObject {
 		return longitude;
 	}
 	
-	public long getUid(){
+	@Override
+	public long getUID(){
 		return uid;
-	}
-	
-	public String getUidString(){
-		return Long.toHexString(uid);
 	}
 	
 	@Override

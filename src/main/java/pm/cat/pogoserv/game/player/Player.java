@@ -4,11 +4,12 @@ import POGOProtos.Enums.POGOProtosEnums.TeamColor;
 import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
+import pm.cat.pogoserv.util.Unique;
 
-public class Player {
+public class Player implements Unique {
 	
-	private final String authMethod;
-	private final String auth;
+	private final AuthToken auth;
+	public final long uid;
 	public final String nickname;
 	public final long creationTs;
 	
@@ -24,8 +25,8 @@ public class Player {
 	public final PlayerInfo stats = new PlayerInfo(pool);
 	public final PlayerAppearance appearance = new PlayerAppearance();
 	
-	Player(String authMethod, String auth, String nick, long creationTs){
-		this.authMethod = authMethod;
+	Player(long uid, AuthToken auth, String nick, long creationTs){
+		this.uid = uid;
 		this.auth = auth;
 		this.nickname = nick;
 		this.creationTs = creationTs;
@@ -51,7 +52,12 @@ public class Player {
 	
 	@Override
 	public String toString(){
-		return auth + "(" + authMethod + ")";
+		return nickname + " (" + auth + ")";
+	}
+
+	@Override
+	public long getUID() {
+		return uid;
 	}
 	
 }

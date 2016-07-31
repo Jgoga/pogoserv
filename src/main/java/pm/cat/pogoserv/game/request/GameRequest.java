@@ -14,7 +14,7 @@ public class GameRequest {
 	public GameRequest(Game game, HttpRequest re){
 		this.game = game;
 		this.http = re;
-		this.player = game.playerController.getPlayer(re.request.getAuthInfo());
+		this.player = game.playerController.player(re.request.getAuthInfo());
 		this.longitude = re.request.getLongitude();
 		this.latitude = re.request.getLatitude();
 		this.altitude = re.request.getAltitude();
