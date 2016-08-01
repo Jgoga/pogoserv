@@ -4,6 +4,7 @@ import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.model.Pokemon;
 import pm.cat.pogoserv.util.Random;
 
+// TODO: Official spawnpoint ids seem to be non-zero bits of level 15 s2cellid + something
 public abstract class SpawnPoint extends MapObject {
 
 	protected MapPokemon activePokemon = null;
@@ -22,6 +23,8 @@ public abstract class SpawnPoint extends MapObject {
 		if(activePokemon != null){
 			despawnPokemon(game);
 		}
+		
+		game.submit(this::despawnPokemon, dur);
 		return activePokemon = game.world.addObject(
 				new MapPokemon(this, p, dur, lat, lng, game.uidManager.next()));
 	}
@@ -29,6 +32,10 @@ public abstract class SpawnPoint extends MapObject {
 	public void despawnPokemon(Game game){
 		game.world.removeObject(activePokemon);
 		activePokemon = null;
+	}
+	
+	public boolean hasPokemon(){
+		return activePokemon != null;
 	}
 	
 }

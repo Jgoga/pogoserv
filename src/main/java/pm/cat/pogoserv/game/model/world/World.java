@@ -28,10 +28,6 @@ public class World {
 	
 	private final LoadingCache<AuthToken, Player> players;
 	
-	// TODO This is a quick&dirty implementation for playerEncounters and pokestop visits
-	//      Guava caches have a big memory overhead. These should be properly done later
-	private final Cache<Uid2, MapPokemon> playerEncounters;
-	
 	private final Game game;
 	
 	public World(Game game){
@@ -42,12 +38,6 @@ public class World {
 				.expireAfterAccess(game.settings.playerCacheTime, TimeUnit.MINUTES)
 				.removalListener(((RemovalListener<AuthToken, Player>)t -> game.objectController.reapPlayer(t.getValue())))
 				.build(new PlayerLoader());
-				
-		playerEncounters = CacheBuilder.newBuilder()
-				.weakValues() // entries get removed when MapPokemon gets GC'd
-				// debug
-				.removalListener(r -> Log.d("World", "GC'd encounter: %s -> %s", r.getKey().toString(), r.getValue().toString()))
-				.build();
 	}
 	
 	public WorldCell getCell(Locatable l){
@@ -107,14 +97,6 @@ public class World {
 		Log.d("World", "%s: Despawning object: %s", cell.toString(), mp.toString());
 		cell.remove(mp.getUID());
 		mp.onRemove(game, cell);
-	}
-	
-	public void setEncountered(Player p, MapPokemon mp){
-		playerEncounters.put(new Uid2(p, mp), mp);
-	}
-	
-	public boolean hasPlayerEncountered(Player p, MapPokemon mp){
-		return playerEncounters.getIfPresent(new Uid2(p, mp)) != null;
 	}
 	
 	private class PlayerLoader extends CacheLoader<AuthToken, Player> {

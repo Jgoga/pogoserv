@@ -12,6 +12,8 @@ import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.WildPokemon;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.GetMapObjectsMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetMapObjectsResponse;
+import pm.cat.pogoserv.Log;
+import pm.cat.pogoserv.game.config.GameSettings;
 import pm.cat.pogoserv.game.model.world.MapObject;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
 import pm.cat.pogoserv.game.model.world.SpawnPoint;
@@ -38,6 +40,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 				POGOProtos.Map.POGOProtosMap.SpawnPoint.newBuilder();
 		
 		int cellCount = gm.getCellIdCount();
+		GameSettings settings = req.game.settings;
 		System.out.println("Request has " + cellCount + " cells");
 		// TODO if cellCount > THRESHOLD, quit
 		for(int i=0;i<cellCount;i++){
@@ -57,36 +60,58 @@ public class GetMapObjectsHandler implements RequestHandler {
 						sp.clear()
 							.setLatitude(lat)
 							.setLongitude(lng);
-						mc.addSpawnPoints(sp);
-						/*
-						if(teknoIsmo7) mc.addSpawnPoints(sp);
-						else mc.addDecimatedSpawnPoints(sp);
-						teknoIsmo7 = !teknoIsmo7;
-						*/
+						
+						// Official servers don't seem to send all spawn points
+						// TODO: When to send spawnpoints?
+						
+						//if(((SpawnPoint)o).hasPokemon())
+						//	mc.addSpawnPoints(sp);
+						
+						// TODO: What is a decimated spawn point ???
+						//       Official server never seems to send them, maybe it's unused
+						
+						//else
+						//	mc.addDecimatedSpawnPoints(sp);
 					}else if(o instanceof MapPokemon){
 						MapPokemon p = (MapPokemon) o;
 						double dist = p.distanceTo(playerPos);
+						
+						// XXX: pokemon has timed out but not cleaned up yet
+						//      (This should not happen)
+						if(p.disappearTimestamp <= ts){
+							Log.w("MapUpdate", "Found zombie: " + p);
+							continue;
+						}
+						
 						// TODO: idk if these values are correct. Probably not
-						if(dist < 50){
+						if(dist < settings.mapEncounterRange){
 							mc.addCatchablePokemons(mp.clear()
 								.setSpawnPointId(WorldCell.uidString(cell, p))
+								//.setSpawnPointId(Long.toHexString(id | 17))
 								.setEncounterId(p.getUID())
 								.setExpirationTimestampMs(p.disappearTimestamp)
 								.setLatitude(lat)
 								.setLongitude(lng));
 						}
-						if(dist < 100){
+						if(dist < settings.mapPokemonVisibleRange){
 							mc.addWildPokemons(wp.clear()
-								.setLastModifiedTimestampMs(p.appearTimestamp)
+								.setEncounterId(p.getUID())
+								//.setLastModifiedTimestampMs(p.appearTimestamp)
+								// TODO: How is this determined? It seems to increase every request.
+								//       Is it just the current timestamp?
+								.setLastModifiedTimestampMs(ts)
 								.setLatitude(lat)
 								.setLongitude(lng)
 								.setSpawnPointId(WorldCell.uidString(cell, p))
+								//.setSpawnPointId(Long.toHexString(id | 17))
 								.setPokemonData(pd.clear().setPokemonIdValue(p.pokemon.def.id))
+								// Pokemon are not disappearing correctly when the last modified timestamp is p.appearTimestamp
+								// Maybe this is somehow relative to lastModifiedTimestamp?
 								.setTimeTillHiddenMs((int) (p.disappearTimestamp - ts)));
 								//.setTimeTillHiddenMs(5000));
 							System.out.println("now=" + ts + ", disappear=" + p.disappearTimestamp + ", TTH=" + ((int)(p.disappearTimestamp-ts)));
 						}
-						if(dist < 500){
+						if(dist < settings.mapPokeNavRange){
 							mc.addNearbyPokemons(np.clear()
 								.setPokemonIdValue(p.pokemon.def.id)
 								.setDistanceInMeters((float) dist)

@@ -1,8 +1,13 @@
 package pm.cat.pogoserv.game.model.player;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import POGOProtos.Enums.POGOProtosEnums.TeamColor;
+import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.game.model.world.MapPokemon;
 import pm.cat.pogoserv.game.request.AuthToken;
 import pm.cat.pogoserv.util.Locatable;
 import pm.cat.pogoserv.util.TimestampVarPool;
@@ -32,12 +37,21 @@ public class Player implements Unique, Locatable {
 	public final PlayerInfo stats;
 	public final Appearance appearance;
 	
+	// TODO This is a quick&dirty implementation for playerEncounters and pokestop visits
+	//      Guava caches have a big memory overhead. These should be properly done later
+	private final Cache<Long, MapPokemon> encounters;
+	
 	public Player(long uid){
 		this.uid = uid;
 		inventory = new Inventory(pool);
 		pokedex = new Pokedex(pool);
 		stats = new PlayerInfo(pool);
 		appearance = new Appearance();
+		
+		encounters = CacheBuilder.newBuilder()
+				.weakValues() // entries get removed when MapPokemon gets GC'd
+				.removalListener(r -> Log.d("Player", "%s: GC'd encounter: %d -> %s", toString(), r.getKey(), r.getValue().toString()))
+				.build();
 	}
 	
 	public void attachTo(Game g){
@@ -62,6 +76,14 @@ public class Player implements Unique, Locatable {
 	public void setEXP(long exp){
 		stats.exp.write().value = exp;
 		recalcLevel();
+	}
+	
+	public boolean hasEncountered(long uid){
+		return encounters.getIfPresent(uid) != null;
+	}
+	
+	public void setEncountered(MapPokemon mp){
+		encounters.put(mp.getUID(), mp);
 	}
 	
 	private void recalcLevel(){
