@@ -38,7 +38,7 @@ public class PeriodicSpawnPoint extends SpawnPoint implements GameRunnable {
 
 	@Override
 	public void run(Game game) {
-		spawnPokemon(game, game.pokegen.createRandom(
+		spawnPokemon(game, game.pokegen.createWild(
 			game.settings.getPokemon(Random.nextElement(pokemon))),
 			spawnLength);
 	}

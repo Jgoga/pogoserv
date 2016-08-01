@@ -22,6 +22,7 @@ public class PSThreadPoolExecutor extends ScheduledThreadPoolExecutor implements
 	@Override
 	public Thread newThread(Runnable r) {
 		Thread ret = new Thread(r, "PSThread-" + r.toString());
+		Log.d("ThreadPool", "Creating new worker: %s", ret.toString());
 		ret.setUncaughtExceptionHandler(this);
 		return ret;
 	}

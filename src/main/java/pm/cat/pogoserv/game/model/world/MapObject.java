@@ -1,9 +1,10 @@
 package pm.cat.pogoserv.game.model.world;
 
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.util.Locatable;
 import pm.cat.pogoserv.util.Unique;
 
-public class MapObject implements Unique {
+public class MapObject implements Unique, Locatable {
 
 	private final long uid;
 	protected double latitude, longitude;
@@ -14,10 +15,12 @@ public class MapObject implements Unique {
 		this.uid = uid;
 	}
 	
+	@Override
 	public double getLatitude(){
 		return latitude;
 	}
 	
+	@Override
 	public double getLongitude(){
 		return longitude;
 	}

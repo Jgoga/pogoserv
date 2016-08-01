@@ -7,35 +7,35 @@ import java.util.concurrent.TimeUnit;
 
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.config.GameSettings;
-import pm.cat.pogoserv.game.control.PlayerController;
+import pm.cat.pogoserv.game.control.ObjectController;
+import pm.cat.pogoserv.game.control.ObjectLoader;
 import pm.cat.pogoserv.game.control.PokemonGen;
-import pm.cat.pogoserv.game.control.WorldController;
+import pm.cat.pogoserv.game.control.impl.DefaultObjectController;
+import pm.cat.pogoserv.game.control.impl.DefaultPokemonGen;
 import pm.cat.pogoserv.game.model.world.World;
-import pm.cat.pogoserv.io.BinaryFilePlayerLoader;
-import pm.cat.pogoserv.io.PlayerLoader;
 
 public class Game {
 
 	public World world;
-	public WorldController worldController;
-	public PlayerController playerController;
-	public PlayerLoader playerLoader;
+	
 	public UidManager uidManager;
+	
+	public ObjectLoader objectLoader;
+	public ObjectController objectController;
 	public PokemonGen pokegen;
 
 	public final GameSettings settings;
 	private final ScheduledThreadPoolExecutor executor;
 	
-	public Game(GameSettings settings, ScheduledThreadPoolExecutor executor){
+	public Game(GameSettings settings, ObjectLoader objectLoader, ScheduledThreadPoolExecutor executor){
 		this.executor = executor;
 		this.settings = settings;
+		this.objectLoader = objectLoader;
 		
-		pokegen = new PokemonGen(this);
+		pokegen = new DefaultPokemonGen();
+		objectController = new DefaultObjectController(this);
 		uidManager = new UidManager(1);
-		worldController = new WorldController(this);
-		world = new World(worldController);
-		playerController = new PlayerController(this);
-		playerLoader = new BinaryFilePlayerLoader(this);
+		world = new World(this);
 	}
 	
 	public void shutdown(){

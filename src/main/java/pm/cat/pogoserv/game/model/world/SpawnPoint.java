@@ -22,12 +22,12 @@ public abstract class SpawnPoint extends MapObject {
 		if(activePokemon != null){
 			despawnPokemon(game);
 		}
-		return activePokemon = game.worldController.addObject(
+		return activePokemon = game.world.addObject(
 				new MapPokemon(this, p, dur, lat, lng, game.uidManager.next()));
 	}
 	
 	public void despawnPokemon(Game game){
-		game.worldController.removeObject(activePokemon);
+		game.world.removeObject(activePokemon);
 		activePokemon = null;
 	}
 	

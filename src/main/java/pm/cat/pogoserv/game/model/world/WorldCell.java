@@ -38,11 +38,7 @@ public class WorldCell {
 	
 	@Override
 	public String toString(){
-		long id = cellId.id();
-		String binary = Long.toBinaryString(id);
-		while(binary.length() < 64)
-			binary = "0" + binary;
-		return String.format("%-20d:%s:%s", id, binary, cellId.toString());
+		return "WorldCell[" + cellId.id() + "]";
 	}	
 	
 	public static String uidString(WorldCell cell, MapObject obj){

@@ -14,12 +14,10 @@ public class Inventory {
 	
 	private final TimestampVarPool pool;
 	
-	int maxItemStorage, maxPokemonStorage;
+	public int maxItemStorage, maxPokemonStorage;
 	
-	Inventory(TimestampVarPool pool, int maxItemStorage, int maxPokemonStorage){
+	Inventory(TimestampVarPool pool){
 		this.pool = pool;
-		this.maxItemStorage = maxItemStorage;
-		this.maxPokemonStorage = maxPokemonStorage;
 	}
 	
 	public TSNode<InventoryPokemon> addPokemon(PokemonDef def, long uid){

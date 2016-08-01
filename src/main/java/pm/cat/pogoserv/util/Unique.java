@@ -12,4 +12,8 @@ public interface Unique {
 		return o instanceof Unique && u.getUID() == ((Unique)o).getUID();
 	}
 	
+	static int hashCode(Unique u){
+		return Long.hashCode(u.getUID());
+	}
+	
 }

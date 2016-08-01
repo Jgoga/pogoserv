@@ -26,7 +26,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 		GetMapObjectsMessage gm = GetMapObjectsMessage.parseFrom(r.getRequestMessage());
 		GetMapObjectsResponse.Builder resp = GetMapObjectsResponse.newBuilder();
 		long ts = System.currentTimeMillis();
-		S2LatLng playerPos = S2LatLng.fromDegrees(req.latitude, req.longitude);
+		S2LatLng playerPos = req.player.s2LatLngPos();
 		
 		MapCell.Builder mc = MapCell.newBuilder();
 		WildPokemon.Builder wp = WildPokemon.newBuilder();
@@ -65,7 +65,7 @@ public class GetMapObjectsHandler implements RequestHandler {
 						*/
 					}else if(o instanceof MapPokemon){
 						MapPokemon p = (MapPokemon) o;
-						double dist = playerPos.getEarthDistance(S2LatLng.fromDegrees(lat, lng));
+						double dist = p.distanceTo(playerPos);
 						// TODO: idk if these values are correct. Probably not
 						if(dist < 50){
 							mc.addCatchablePokemons(mp.clear()

@@ -2,7 +2,8 @@ package pm.cat.pogoserv.game.model.world;
 
 import pm.cat.pogoserv.game.model.Pokemon;
 
-public class MapPokemon extends DynamicMapObject {
+// TODO: MapPokemon in the game seem static. Test if moving pokemon would work.
+public class MapPokemon extends MapObject {
 	
 	//public final long encounterId; // super.uid
 	//public String spawnPointId; // source.uid
@@ -21,7 +22,7 @@ public class MapPokemon extends DynamicMapObject {
 	
 	@Override
 	public String toString(){
-		return super.toString() + ": " + pokemon.toString() + " (" + source.toString() + ")";
+		return super.toString() + ": " + pokemon.toString() + " (" + source.getUIDString() + ")";
 	}
 
 }
