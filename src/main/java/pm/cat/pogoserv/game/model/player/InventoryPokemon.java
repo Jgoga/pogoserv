@@ -1,8 +1,8 @@
-package pm.cat.pogoserv.game.player;
+package pm.cat.pogoserv.game.model.player;
 
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
-import pm.cat.pogoserv.game.Pokemon;
 import pm.cat.pogoserv.game.config.PokemonDef;
+import pm.cat.pogoserv.game.model.Pokemon;
 
 public class InventoryPokemon extends Pokemon {
 
@@ -18,7 +18,7 @@ public class InventoryPokemon extends Pokemon {
 	public int numUpgrades;
 	public int favorite;
 	public String nickname;
-	public EggIncubator incubator; // non-null if pokemon is an egg
+	//public EggIncubator incubator; // non-null if pokemon is an egg, TODO
 	public int deployedFortId;
 	public int fromFortId;
 	

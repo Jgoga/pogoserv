@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.world;
+package pm.cat.pogoserv.game.model.world;
 
 public class DynamicMapObject extends MapObject {
 

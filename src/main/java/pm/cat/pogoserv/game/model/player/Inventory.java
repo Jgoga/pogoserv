@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.player;
+package pm.cat.pogoserv.game.model.player;
 
 import java.util.HashMap;
 
@@ -16,8 +16,10 @@ public class Inventory {
 	
 	int maxItemStorage, maxPokemonStorage;
 	
-	Inventory(TimestampVarPool pool){
+	Inventory(TimestampVarPool pool, int maxItemStorage, int maxPokemonStorage){
 		this.pool = pool;
+		this.maxItemStorage = maxItemStorage;
+		this.maxPokemonStorage = maxPokemonStorage;
 	}
 	
 	public TSNode<InventoryPokemon> addPokemon(PokemonDef def, long uid){
@@ -30,6 +32,14 @@ public class Inventory {
 		return pokemon.get(uid);
 	}
 	
+	public int uniquePokemonCount(){
+		return pokemon.size();
+	}
+	
+	public Iterable<TSNode<InventoryPokemon>> getAllPokemon(){
+		return pokemon.values();
+	}
+	
 	public TSNode<Item> item(ItemDef def){
 		TSNode<Item> ret = items.get(def.id);
 		if(ret == null){
@@ -37,6 +47,14 @@ public class Inventory {
 			items.put(def.id, ret);
 		}
 		return ret;
+	}
+	
+	public Iterable<TSNode<Item>> getAllItems(){
+		return items.values();
+	}
+	
+	public int uniqueItemCount(){
+		return items.size();
 	}
 	
 	public void removePokemon(long uid){

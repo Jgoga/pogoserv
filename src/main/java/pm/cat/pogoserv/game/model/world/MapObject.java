@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.world;
+package pm.cat.pogoserv.game.model.world;
 
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.util.Unique;

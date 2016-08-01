@@ -2,7 +2,7 @@ package pm.cat.pogoserv.game.request;
 
 import pm.cat.pogoserv.core.net.HttpRequest;
 import pm.cat.pogoserv.game.Game;
-import pm.cat.pogoserv.game.player.Player;
+import pm.cat.pogoserv.game.model.player.Player;
 
 public class GameRequest {
 	

@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.player;
+package pm.cat.pogoserv.game.request;
 
 import java.util.Base64;
 
@@ -9,15 +9,15 @@ import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnve
 
 public class AuthToken {
 	
-	final String provider;
-	final String content;
+	public final String provider;
+	public final String content;
 	
 	AuthToken(String provider, String content){
 		this.provider = provider;
 		this.content = content;
 	}
 	
-	String parseID(){
+	public String parseID(){
 		if(provider.equals("google"))
 			return parseGoogleToken(content);
 		return null;
@@ -30,13 +30,18 @@ public class AuthToken {
 		return j.get("email").asString();
 	}
 	
-	static AuthToken fromAuthInfo(AuthInfo ai){
+	public static AuthToken fromAuthInfo(AuthInfo ai){
 		return new AuthToken(ai.getProvider(), ai.getToken().getContents());
 	}
 	
 	@Override
 	public int hashCode(){
 		return provider.hashCode() * 37 + content.hashCode();
+	}
+	
+	@Override
+	public String toString(){
+		return provider + "/" + content;
 	}
 	
 }

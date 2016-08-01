@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game;
+package pm.cat.pogoserv.game.model;
 
 import POGOProtos.Enums.POGOProtosEnums.PokemonMove;
 import pm.cat.pogoserv.game.config.PokemonDef;

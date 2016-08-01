@@ -1,7 +1,9 @@
-package pm.cat.pogoserv.game.world;
+package pm.cat.pogoserv.game.control;
 
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.game.model.world.MapObject;
+import pm.cat.pogoserv.game.model.world.WorldCell;
 
 public class WorldController {
 	

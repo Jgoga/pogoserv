@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
@@ -77,6 +78,14 @@ public class Util {
 	
 	public static long usedMemory(){
 		return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+	}
+	
+	public static String base64encode(String s){
+		return Base64.getEncoder().encodeToString(s.getBytes());
+	}
+	
+	public static String base64decode(String s){
+		return new String(Base64.getDecoder().decode(s));
 	}
 	
 	static {

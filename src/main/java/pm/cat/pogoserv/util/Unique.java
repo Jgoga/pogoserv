@@ -8,4 +8,8 @@ public interface Unique {
 		return Long.toHexString(getUID());
 	}
 	
+	static boolean equals(Unique u, Object o){
+		return o instanceof Unique && u.getUID() == ((Unique)o).getUID();
+	}
+	
 }

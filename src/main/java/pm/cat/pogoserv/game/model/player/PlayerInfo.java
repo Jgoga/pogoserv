@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.player;
+package pm.cat.pogoserv.game.model.player;
 
 import POGOProtos.Data.Player.POGOProtosDataPlayer.PlayerStats;
 import pm.cat.pogoserv.util.TimestampVarPool;
@@ -50,35 +50,27 @@ public class PlayerInfo {
 		numPokemonDeployed = pool.allocate(new Stat<Integer>(PlayerStats.POKEMON_DEPLOYED_FIELD_NUMBER));
 	}
 	
-	public long getExp(){
-		return exp.read().value;
-	}
-	
-	public int getLevel(){
-		return level.read().value;
-	}
-	
-	static void setDefaults(PlayerInfo ps){
+	public static void setDefaults(PlayerInfo ps){
 		ps.exp.write().value = 0L;
 		ps.level.write().value = 1;
 		//ps.nextLevelExp.write().value = 0L;
-		ps.numPokemonEncountered.write().value = 1000;
-		ps.numPokemonCaptured.write().value = 500;
-		ps.kmWalked.write().value = 20f;
-		ps.numEvolutions.write().value = 50;
-		ps.numPokestopVisits.write().value = 1000;
-		ps.numPokeballsThrown.write().value = 3000;
-		ps.numEggsHatched.write().value = 2;
+		ps.numPokemonEncountered.write().value = 0;
+		ps.numPokemonCaptured.write().value = 0;
+		ps.kmWalked.write().value = 0f;
+		ps.numEvolutions.write().value = 0;
+		ps.numPokestopVisits.write().value = 0;
+		ps.numPokeballsThrown.write().value = 0;
+		ps.numEggsHatched.write().value = 0;
 		//ps.numBigMagikarpCaught.set(0);
 		//ps.numSmallRattataCaught.set(0);
-		ps.numBattleAttackWon.write().value = 30;
-		ps.numBattleAttackTotal.write().value = 50;
-		ps.numBattleDefendWon.write().value = 50;
-		ps.numBattleTrainingWon.write().value = 60;
-		ps.numBattleTrainingTotal.write().value = 100;
-		ps.prestigeRaisedTotal.write().value = 420;
-		ps.prestigeDroppedTotal.write().value = 420;
-		ps.numPokemonDeployed.write().value = 10;
+		ps.numBattleAttackWon.write().value = 0;
+		ps.numBattleAttackTotal.write().value = 0;
+		ps.numBattleDefendWon.write().value = 0;
+		ps.numBattleTrainingWon.write().value = 0;
+		ps.numBattleTrainingTotal.write().value = 0;
+		ps.prestigeRaisedTotal.write().value = 0;
+		ps.prestigeDroppedTotal.write().value = 0;
+		ps.numPokemonDeployed.write().value = 0;
 	}
 	
 	public static class Stat<T> {

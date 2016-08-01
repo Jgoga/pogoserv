@@ -9,10 +9,10 @@ import pm.cat.pogoserv.core.net.Server;
 import pm.cat.pogoserv.core.net.SimpleRPCHandleAllocator;
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.config.GameSettings;
+import pm.cat.pogoserv.game.model.world.PeriodicSpawnPoint;
 import pm.cat.pogoserv.game.request.GameRequestFilter;
 import pm.cat.pogoserv.game.request.RequestDispatcher;
 import pm.cat.pogoserv.game.request.Unknown6Handler;
-import pm.cat.pogoserv.game.world.PeriodicSpawnPoint;
 import pm.cat.pogoserv.util.Util;
 
 public class Main {
@@ -22,12 +22,14 @@ public class Main {
 		int threads = 1;
 		String rpcHost = "pgorelease.nianticlabs.com";
 		String dataPath = "data/";
+		String database = "data/saves/";
 		
 		for(int i=0;i<args.length;i++){
 			String a = args[i];
 			if(a.equals("-p") || a.equals("--port")){ port = Integer.parseInt(args[++i]); }
 			else if(a.equals("-t") || a.equals("--threads")){ threads = Integer.parseInt(args[++i]); }
 			else if(a.equals("-d") || a.equals("--data")){ dataPath = args[++i]; }
+			else if(a.equals("-p") || a.equals("--player-saves")){ database = args[++i]; }
 			else if(a.equals("--rpc-host")){ rpcHost = args[++i]; }
 		}
 		

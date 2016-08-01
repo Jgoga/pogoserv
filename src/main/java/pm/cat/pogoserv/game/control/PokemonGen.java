@@ -1,6 +1,8 @@
-package pm.cat.pogoserv.game;
+package pm.cat.pogoserv.game.control;
 
+import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.config.PokemonDef;
+import pm.cat.pogoserv.game.model.Pokemon;
 import pm.cat.pogoserv.util.Random;
 
 // Utility class for generating pokemon

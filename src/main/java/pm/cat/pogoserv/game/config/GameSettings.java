@@ -44,6 +44,8 @@ public class GameSettings {
 	//
 	public String assetHostPrefix;
 	public String dataPath;
+	public String playerDataPath;
+	
 	// Time to keep players cached (in minutes)
 	public int playerCacheTime = 10;
 	

@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.world;
+package pm.cat.pogoserv.game.model.world;
 
 import java.util.concurrent.ConcurrentHashMap;
 

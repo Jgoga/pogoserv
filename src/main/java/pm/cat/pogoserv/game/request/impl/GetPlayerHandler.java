@@ -9,8 +9,8 @@ import POGOProtos.Enums.POGOProtosEnums.TutorialState;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetPlayerResponse;
 import pm.cat.pogoserv.core.Constants;
-import pm.cat.pogoserv.game.player.Player;
-import pm.cat.pogoserv.game.player.PlayerAppearance;
+import pm.cat.pogoserv.game.model.player.Appearance;
+import pm.cat.pogoserv.game.model.player.Player;
 import pm.cat.pogoserv.game.request.GameRequest;
 import pm.cat.pogoserv.game.request.RequestHandler;
 
@@ -22,7 +22,7 @@ public class GetPlayerHandler implements RequestHandler {
 		PlayerData.Builder ret = PlayerData.newBuilder()
 				.setCreationTimestampMs(p.creationTs)
 				.setUsername(p.nickname)
-				.setTeam(p.getTeam())
+				.setTeam(p.team)
 				// TODO Actually implement tutorial. They are just skipped for now.
 				.setAvatar(getAvatar(p.appearance))
 				.setMaxPokemonStorage(p.inventory.getMaxPokemonStorage())
@@ -43,7 +43,7 @@ public class GetPlayerHandler implements RequestHandler {
 			.setPlayerData(ret);
 	}
 	
-	protected PlayerAvatar.Builder getAvatar(PlayerAppearance a){
+	protected PlayerAvatar.Builder getAvatar(Appearance a){
 		return PlayerAvatar.newBuilder()
 			.setSkin(a.skin)
 			.setHair(a.hair)

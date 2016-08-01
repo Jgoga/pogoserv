@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.player;
+package pm.cat.pogoserv.game.model.player;
 
 import pm.cat.pogoserv.game.config.ItemDef;
 

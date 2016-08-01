@@ -1,12 +1,10 @@
-package pm.cat.pogoserv.game.world;
+package pm.cat.pogoserv.game.model.world;
 
 import java.util.Arrays;
 import java.util.concurrent.Future;
 
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.GameRunnable;
-import pm.cat.pogoserv.game.Pokemon;
-import pm.cat.pogoserv.game.config.PokemonDef;
 import pm.cat.pogoserv.util.Random;
 
 // These are the default spawn points (and the only kind that exist currently in pokemon go)

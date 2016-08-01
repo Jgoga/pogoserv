@@ -5,10 +5,10 @@ import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.EncounterMessage;
+import pm.cat.pogoserv.game.model.world.MapObject;
+import pm.cat.pogoserv.game.model.world.WorldCell;
 import pm.cat.pogoserv.game.request.GameRequest;
 import pm.cat.pogoserv.game.request.RequestHandler;
-import pm.cat.pogoserv.game.world.MapObject;
-import pm.cat.pogoserv.game.world.WorldCell;
 
 public class EncounterHandler implements RequestHandler {
 
