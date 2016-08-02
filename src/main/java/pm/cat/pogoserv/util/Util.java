@@ -18,10 +18,6 @@ public class Util {
 	
 	private static final DateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
 	
-	public static int compareL(long a, long b){
-		return a < b ? -1 : a > b ? 1 : 0;
-	}
-	
 	public static byte[] readFile(String file) throws IOException {
 		return readFile(new File(file));
 	}
@@ -87,6 +83,8 @@ public class Util {
 	public static String base64decode(String s){
 		return new String(Base64.getDecoder().decode(s));
 	}
+	
+	
 	
 	static {
 		HTTP_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));

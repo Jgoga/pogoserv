@@ -2,7 +2,10 @@ package pm.cat.pogoserv.game.control.impl;
 
 import pm.cat.pogoserv.game.config.PokemonDef;
 import pm.cat.pogoserv.game.control.PokemonGen;
-import pm.cat.pogoserv.game.model.Pokemon;
+import pm.cat.pogoserv.game.model.player.InventoryPokemon;
+import pm.cat.pogoserv.game.model.player.Player;
+import pm.cat.pogoserv.game.model.pokemon.Pokemon;
+import pm.cat.pogoserv.game.model.world.MapPokemon;
 import pm.cat.pogoserv.util.Random;
 
 public class DefaultPokemonGen implements PokemonGen {
@@ -18,8 +21,16 @@ public class DefaultPokemonGen implements PokemonGen {
 		ret.ivAtk = Random.nextInt(16);
 		ret.ivDef = Random.nextInt(16);
 		ret.ivSta = Random.nextInt(16);
-		// TODO What is this ???
-		ret.cpMultiplier = 1.0f;
+		return ret;
+	}
+
+	@Override
+	public InventoryPokemon createEncounter(MapPokemon src, Player p, long uid) {
+		InventoryPokemon ret = new InventoryPokemon(src.pokemon.def, uid);
+		ret.copyFrom(src.pokemon);
+		ret.setCpMultiplier((float) (src.spawnParameter * Math.sqrt(p.getLevel())));
+		ret.setAdditionalCpMultiplier(0);
+		ret.creationTimestamp = System.currentTimeMillis();
 		return ret;
 	}
 	

@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request;
+package pm.cat.pogoserv.game.net.request;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;

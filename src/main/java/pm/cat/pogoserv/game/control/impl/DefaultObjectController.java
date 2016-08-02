@@ -2,12 +2,13 @@ package pm.cat.pogoserv.game.control.impl;
 
 import POGOProtos.Enums.POGOProtosEnums.TeamColor;
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
+import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.control.ObjectController;
 import pm.cat.pogoserv.game.model.player.Appearance;
 import pm.cat.pogoserv.game.model.player.Player;
 import pm.cat.pogoserv.game.model.player.PlayerInfo;
-import pm.cat.pogoserv.game.request.AuthToken;
+import pm.cat.pogoserv.game.net.request.AuthToken;
 
 public class DefaultObjectController implements ObjectController {
 	
@@ -23,6 +24,7 @@ public class DefaultObjectController implements ObjectController {
 		if(ret != null)
 			return ret;	
 		
+		Log.d("ObjCtrlr", "Creating new player from auth token: %s", auth.toString());
 		ret = new Player(game.uidManager.next());
 		ret.creationTs = System.currentTimeMillis();
 		// TODO: Should ask for nick.
@@ -45,6 +47,7 @@ public class DefaultObjectController implements ObjectController {
 
 	@Override
 	public void reapPlayer(Player p) {
+		Log.d("ObjCtrlr", "Reaping player: %s", p.toString());
 		game.objectLoader.savePlayer(p);
 	}
 

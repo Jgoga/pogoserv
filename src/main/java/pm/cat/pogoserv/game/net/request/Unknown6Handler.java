@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request;
+package pm.cat.pogoserv.game.net.request;
 
 import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.Unknown6Response;
 import pm.cat.pogoserv.util.Filter;

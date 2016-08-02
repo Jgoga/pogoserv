@@ -3,7 +3,6 @@ package pm.cat.pogoserv.game.model.player;
 import java.util.HashMap;
 
 import pm.cat.pogoserv.game.config.ItemDef;
-import pm.cat.pogoserv.game.config.PokemonDef;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
 
@@ -20,9 +19,9 @@ public class Inventory {
 		this.pool = pool;
 	}
 	
-	public TSNode<InventoryPokemon> addPokemon(PokemonDef def, long uid){
-		TSNode<InventoryPokemon> ret = pool.allocate(new InventoryPokemon(def, uid));
-		pokemon.put(uid, ret);
+	public TSNode<InventoryPokemon> addPokemon(InventoryPokemon p){
+		TSNode<InventoryPokemon> ret = pool.allocate(p);
+		pokemon.put(p.getUID(), ret);
 		return ret;
 	}
 	

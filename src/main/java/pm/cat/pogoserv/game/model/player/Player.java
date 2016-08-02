@@ -7,8 +7,10 @@ import POGOProtos.Enums.POGOProtosEnums.TeamColor;
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.game.model.world.Encounter;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
-import pm.cat.pogoserv.game.request.AuthToken;
+import pm.cat.pogoserv.game.model.world.SpawnPoint;
+import pm.cat.pogoserv.game.net.request.AuthToken;
 import pm.cat.pogoserv.util.Locatable;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
@@ -26,6 +28,8 @@ public class Player implements Unique, Locatable {
 	public TeamColor team;
 	
 	private double latitude, longitude;
+	
+	public Encounter currentEncounter;
 
 	private final TimestampVarPool pool = new TimestampVarPool();
 	

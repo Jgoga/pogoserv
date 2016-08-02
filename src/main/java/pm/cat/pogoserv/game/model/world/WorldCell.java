@@ -20,6 +20,10 @@ public class WorldCell {
 		this.cellId = s2cellid;
 	}
 	
+	public S2CellId getCellId(){
+		return cellId;
+	}
+	
 	public void add(MapObject obj){
 		objects.put(obj.getUID(), obj);
 	}
@@ -39,26 +43,6 @@ public class WorldCell {
 	@Override
 	public String toString(){
 		return "WorldCell[" + cellId.id() + "]";
-	}	
-	
-	public static String uidString(WorldCell cell, MapObject obj){
-		return uidString(cell.cellId.id(), obj.getUID());
-	}
-	
-	public static String uidString(WorldCell cell, long objectId){
-		return uidString(cell.cellId.id(), objectId);
-	}
-	
-	public static String uidString(long cellId, long objectId){
-		return Long.toHexString(cellId) + "." + Long.toHexString(objectId);
-	}
-	
-	public static long[] parseUid(String uidString){
-		int idx = uidString.indexOf('.');
-		return new long[] {
-			Long.parseLong(uidString.substring(0, idx), 16),
-			Long.parseLong(uidString.substring(idx+1), 16)
-		};
 	}
 
 }

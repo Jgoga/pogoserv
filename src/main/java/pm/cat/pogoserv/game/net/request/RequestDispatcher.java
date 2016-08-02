@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request;
+package pm.cat.pogoserv.game.net.request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,15 +14,16 @@ import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.RequestType;
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.config.GameSettings;
-import pm.cat.pogoserv.game.request.impl.DownloadItemTemplatesHandler;
-import pm.cat.pogoserv.game.request.impl.DownloadRemoteConfigVersionHandler;
-import pm.cat.pogoserv.game.request.impl.DownloadSettingsHandler;
-import pm.cat.pogoserv.game.request.impl.EncounterHandler;
-import pm.cat.pogoserv.game.request.impl.GetAssetDigestHandler;
-import pm.cat.pogoserv.game.request.impl.GetDownloadUrlsHandler;
-import pm.cat.pogoserv.game.request.impl.GetInventoryHandler;
-import pm.cat.pogoserv.game.request.impl.GetMapObjectsHandler;
-import pm.cat.pogoserv.game.request.impl.GetPlayerHandler;
+import pm.cat.pogoserv.game.net.request.impl.CatchPokemonHandler;
+import pm.cat.pogoserv.game.net.request.impl.DownloadItemTemplatesHandler;
+import pm.cat.pogoserv.game.net.request.impl.DownloadRemoteConfigVersionHandler;
+import pm.cat.pogoserv.game.net.request.impl.DownloadSettingsHandler;
+import pm.cat.pogoserv.game.net.request.impl.EncounterHandler;
+import pm.cat.pogoserv.game.net.request.impl.GetAssetDigestHandler;
+import pm.cat.pogoserv.game.net.request.impl.GetDownloadUrlsHandler;
+import pm.cat.pogoserv.game.net.request.impl.GetInventoryHandler;
+import pm.cat.pogoserv.game.net.request.impl.GetMapObjectsHandler;
+import pm.cat.pogoserv.game.net.request.impl.GetPlayerHandler;
 import pm.cat.pogoserv.util.Filter;
 
 public class RequestDispatcher implements Filter<GameRequest> {
@@ -82,6 +83,7 @@ public class RequestDispatcher implements Filter<GameRequest> {
 		setHandler(RequestType.DOWNLOAD_ITEM_TEMPLATES, new DownloadItemTemplatesHandler());
 		setHandler(RequestType.GET_DOWNLOAD_URLS, new GetDownloadUrlsHandler());
 		setHandler(RequestType.ENCOUNTER, new EncounterHandler());
+		setHandler(RequestType.CATCH_POKEMON, new CatchPokemonHandler());
 		return this;
 	}
 

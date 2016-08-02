@@ -15,7 +15,7 @@ import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnve
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.request.AuthToken;
+import pm.cat.pogoserv.game.net.request.AuthToken;
 import pm.cat.pogoserv.util.Locatable;
 import pm.cat.pogoserv.util.Uid2;
 
@@ -97,6 +97,22 @@ public class World {
 		Log.d("World", "%s: Despawning object: %s", cell.toString(), mp.toString());
 		cell.remove(mp.getUID());
 		mp.onRemove(game, cell);
+	}
+	
+	public MapObject objectForStr(String s){
+		int dotIdx = s.indexOf('.');
+		long cellid = Long.parseLong(s.substring(0, dotIdx), 16);
+		long objid = Long.parseLong(s.substring(dotIdx + 1), 16);
+		WorldCell cell = getCell(cellid);
+		return cell != null ? cell.get(objid) : null;
+	}
+	
+	public static String objidString(WorldCell cell, MapObject obj){
+		return objidString(cell.getCellId().id(), obj.getUID());
+	}
+	
+	public static String objidString(long cellId, long objectId){
+		return Long.toHexString(cellId) + "." + Long.toHexString(objectId);
 	}
 	
 	private class PlayerLoader extends CacheLoader<AuthToken, Player> {

@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request.impl;
+package pm.cat.pogoserv.game.net.request.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;
@@ -15,8 +15,9 @@ import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetInventor
 import pm.cat.pogoserv.game.model.player.InventoryPokemon;
 import pm.cat.pogoserv.game.model.player.Item;
 import pm.cat.pogoserv.game.model.player.PlayerInfo;
-import pm.cat.pogoserv.game.request.GameRequest;
-import pm.cat.pogoserv.game.request.RequestHandler;
+import pm.cat.pogoserv.game.net.ProtobufMapper;
+import pm.cat.pogoserv.game.net.request.GameRequest;
+import pm.cat.pogoserv.game.net.request.RequestHandler;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
 
@@ -41,9 +42,9 @@ public class GetInventoryHandler implements RequestHandler {
 			
 			// Pokemon added
 			if(ref instanceof InventoryPokemon)
-				idata.setPokemonData(getPokemonData((InventoryPokemon) ref));
+				idata.setPokemonData(ProtobufMapper.inventoryPokemon(PokemonData.newBuilder(), (InventoryPokemon) ref));
 			else if(ref instanceof Item)
-				idata.setItem(getItemData((Item) ref));
+				idata.setItem(ProtobufMapper.item(ItemData.newBuilder(), (Item) ref));
 			// TODO PokedexEntry
 			else if(ref instanceof PlayerInfo.Stat<?>){
 				if(statsBuilder == null){
@@ -89,49 +90,6 @@ public class GetInventoryHandler implements RequestHandler {
 		//System.out.println("addPlayerStat: " + s.id + ": " + s.value);
 		if(s.value != null)
 			destBuilder.setField(PlayerStats.getDescriptor().findFieldByNumber(s.id), s.value);
-	}
-	
-	protected ItemData.Builder getItemData(Item i){
-		return ItemData.newBuilder()
-			.setItemIdValue(i.def.id)
-			.setCount(i.count);
-			// TODO bool unseen
-	}
-	
-	protected PokemonData.Builder getPokemonData(InventoryPokemon p){
-		PokemonData.Builder ret = PokemonData.newBuilder();
-		ret.setId(p.uid)
-			.setPokemonIdValue(p.def.id)
-			.setCp(p.cp)
-			.setStamina(p.stamina)
-			.setStaminaMax(p.maxStamina)
-			.setMove1(p.move1)
-			.setMove2(p.move2)
-			// deployed_fort_id
-			// owner_name
-			// is_egg
-			// egg -> egg_km_walked_target
-			// egg -> egg_km_walked_start
-			// origin
-			.setHeightM(p.height)
-			.setWeightKg(p.weight)
-			.setIndividualAttack(p.ivAtk)
-			.setIndividualDefense(p.ivDef)
-			.setIndividualStamina(p.ivSta)
-			.setCpMultiplier(p.cpMultiplier)
-			.setPokeball(p.pokeball)
-			.setCapturedCellId(p.capturedCellId)
-			.setBattlesAttacked(p.battlesAttacked)
-			.setBattlesDefended(p.battlesDefended)
-			// egg -> egg_incubator_id
-			.setCreationTimeMs(p.creationTimestamp)
-			.setNumUpgrades(p.numUpgrades)
-			// TODO: additional_cp_multiplier
-			// TODO: favorite
-			// TODO: nickname
-			// TODO: from_fort
-			;
-		return ret;
 	}
 	
 }

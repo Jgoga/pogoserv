@@ -1,11 +1,11 @@
-package pm.cat.pogoserv.game.request.impl;
+package pm.cat.pogoserv.game.net.request.impl;
 
 import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.DownloadRemoteConfigVersionResponse;
-import pm.cat.pogoserv.game.request.GameRequest;
-import pm.cat.pogoserv.game.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.GameRequest;
+import pm.cat.pogoserv.game.net.request.RequestHandler;
 
 public class DownloadRemoteConfigVersionHandler implements RequestHandler {
 	

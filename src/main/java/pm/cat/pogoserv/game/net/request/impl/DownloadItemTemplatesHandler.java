@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request.impl;
+package pm.cat.pogoserv.game.net.request.impl;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;
@@ -6,8 +6,8 @@ import com.google.protobuf.MessageLiteOrBuilder;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.DownloadItemTemplatesResponse;
 import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.game.request.GameRequest;
-import pm.cat.pogoserv.game.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.GameRequest;
+import pm.cat.pogoserv.game.net.request.RequestHandler;
 import pm.cat.pogoserv.util.Util;
 
 public class DownloadItemTemplatesHandler implements RequestHandler {

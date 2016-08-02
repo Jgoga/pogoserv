@@ -13,9 +13,9 @@ import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.config.GameSettings;
 import pm.cat.pogoserv.game.control.ObjectLoader;
 import pm.cat.pogoserv.game.model.world.PeriodicSpawnPoint;
-import pm.cat.pogoserv.game.request.GameRequestFilter;
-import pm.cat.pogoserv.game.request.RequestDispatcher;
-import pm.cat.pogoserv.game.request.Unknown6Handler;
+import pm.cat.pogoserv.game.net.request.GameRequestFilter;
+import pm.cat.pogoserv.game.net.request.RequestDispatcher;
+import pm.cat.pogoserv.game.net.request.Unknown6Handler;
 import pm.cat.pogoserv.util.Util;
 
 public class Main {
@@ -67,7 +67,7 @@ public class Main {
 		
 		s.listen();
 		
-		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*120, 1000*30, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 },
+		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*180, 1000*160, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 },
 				62.601, 29.7636, g.uidManager.next());
 		g.world.addObject(spawn);
 		

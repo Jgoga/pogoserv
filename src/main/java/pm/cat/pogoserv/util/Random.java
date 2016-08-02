@@ -17,6 +17,11 @@ public class Random {
 		return random.nextGaussian();
 	}
 	
+	// [min, max[
+	public static float nextFloat(float min, float max){
+		return (float) (min + random.nextDouble() * (max - min));
+	}
+	
 	public static <T> T nextElement(T[] ts){
 		return ts[nextInt(ts.length)];
 	}

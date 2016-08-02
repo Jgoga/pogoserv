@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request.impl;
+package pm.cat.pogoserv.game.net.request.impl;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -9,8 +9,8 @@ import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.GetAssetDigestMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetAssetDigestResponse;
 import pm.cat.pogoserv.game.config.AssetDef;
-import pm.cat.pogoserv.game.request.GameRequest;
-import pm.cat.pogoserv.game.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.GameRequest;
+import pm.cat.pogoserv.game.net.request.RequestHandler;
 
 public class GetAssetDigestHandler implements RequestHandler {
 

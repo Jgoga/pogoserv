@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request;
+package pm.cat.pogoserv.game.net.request;
 
 import pm.cat.pogoserv.core.net.HttpRequest;
 import pm.cat.pogoserv.game.Game;

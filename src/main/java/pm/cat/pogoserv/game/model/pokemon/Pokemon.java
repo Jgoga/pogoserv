@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.model;
+package pm.cat.pogoserv.game.model.pokemon;
 
 import POGOProtos.Enums.POGOProtosEnums.PokemonMove;
 import pm.cat.pogoserv.game.config.PokemonDef;
@@ -11,7 +11,6 @@ public class Pokemon {
 	public float height;
 	public float weight;
 	public int ivAtk, ivDef, ivSta;
-	public float cpMultiplier;
 	
 	public Pokemon(PokemonDef def){
 		this.def = def;
@@ -25,7 +24,6 @@ public class Pokemon {
 		this.ivAtk = other.ivAtk;
 		this.ivDef = other.ivDef;
 		this.ivSta = other.ivSta;
-		this.cpMultiplier = other.cpMultiplier;
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package pm.cat.pogoserv.game.request.impl;
+package pm.cat.pogoserv.game.net.request.impl;
 
 import com.google.protobuf.MessageLiteOrBuilder;
 
@@ -11,8 +11,8 @@ import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetPlayerRe
 import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.game.model.player.Appearance;
 import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.request.GameRequest;
-import pm.cat.pogoserv.game.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.GameRequest;
+import pm.cat.pogoserv.game.net.request.RequestHandler;
 
 public class GetPlayerHandler implements RequestHandler {
 
