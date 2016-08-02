@@ -16,4 +16,9 @@ public class Item {
 		this.count = count;
 	}
 	
+	@Override
+	public String toString(){
+		return def + " x" + count;
+	}
+	
 }

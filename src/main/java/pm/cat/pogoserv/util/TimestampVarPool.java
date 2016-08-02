@@ -6,7 +6,6 @@ package pm.cat.pogoserv.util;
 public class TimestampVarPool {
 	
 	private TSNode<?> head, tail;
-	private long lastValidTime = 0;
 	
 	public <T> TSNode<T> allocate(T t){
 		TSNode<T> ret = new TSNode<>(t);
@@ -14,13 +13,17 @@ public class TimestampVarPool {
 			if(head == null){
 				head = tail = ret;
 			}else{
-				ret.next = head;
-				head.prev = ret;
-				head = ret;
-				ret.prev = null;
+				appendTail(ret);
 			}
 		}
 		return ret;
+	}
+	
+	private void appendTail(TSNode<?> t){
+		tail.next = t;
+		t.prev = tail;
+		tail = t;
+		t.next = null;
 	}
 	
 	public TSNode<?> getHead(){
@@ -45,13 +48,12 @@ public class TimestampVarPool {
 			timestamp = System.currentTimeMillis();
 			if(this != tail){
 				synchronized(TimestampVarPool.this){
+					if(this == head)
+						head = next;
 					if(prev != null)
 						prev.next = next;
 					next.prev = prev;
-					tail.next = this;
-					this.prev = tail;
-					tail = this;
-					this.next = null;
+					appendTail(this);
 				}
 			}
 			return t;

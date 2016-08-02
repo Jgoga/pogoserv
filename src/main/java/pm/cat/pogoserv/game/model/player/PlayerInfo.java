@@ -16,8 +16,8 @@ public class PlayerInfo {
 	public final TSNode<Stat<Integer>> numPokestopVisits;
 	public final TSNode<Stat<Integer>> numPokeballsThrown;
 	public final TSNode<Stat<Integer>> numEggsHatched;
-	public final TSNode<Stat<Integer>> numBigMagikarpCaught;
-	public final TSNode<Stat<Integer>> numSmallRattataCaught;
+	//public final TSNode<Stat<Integer>> numBigMagikarpCaught;
+	//public final TSNode<Stat<Integer>> numSmallRattataCaught;
 	public final TSNode<Stat<Integer>> numBattleAttackWon;
 	public final TSNode<Stat<Integer>> numBattleAttackTotal;
 	public final TSNode<Stat<Integer>> numBattleDefendWon;
@@ -38,8 +38,8 @@ public class PlayerInfo {
 		numPokestopVisits = pool.allocate(new Stat<Integer>(PlayerStats.POKE_STOP_VISITS_FIELD_NUMBER));
 		numPokeballsThrown = pool.allocate(new Stat<Integer>(PlayerStats.POKEBALLS_THROWN_FIELD_NUMBER));
 		numEggsHatched = pool.allocate(new Stat<Integer>(PlayerStats.EGGS_HATCHED_FIELD_NUMBER));
-		numBigMagikarpCaught = pool.allocate(new Stat<Integer>(PlayerStats.BIG_MAGIKARP_CAUGHT_FIELD_NUMBER));
-		numSmallRattataCaught = pool.allocate(new Stat<Integer>(PlayerStats.SMALL_RATTATA_CAUGHT_FIELD_NUMBER));
+		//numBigMagikarpCaught = pool.allocate(new Stat<Integer>(PlayerStats.BIG_MAGIKARP_CAUGHT_FIELD_NUMBER));
+		//numSmallRattataCaught = pool.allocate(new Stat<Integer>(PlayerStats.SMALL_RATTATA_CAUGHT_FIELD_NUMBER));
 		numBattleAttackWon = pool.allocate(new Stat<Integer>(PlayerStats.BATTLE_ATTACK_WON_FIELD_NUMBER));
 		numBattleAttackTotal = pool.allocate(new Stat<Integer>(PlayerStats.BATTLE_ATTACK_TOTAL_FIELD_NUMBER));
 		numBattleDefendWon = pool.allocate(new Stat<Integer>(PlayerStats.BATTLE_DEFENDED_WON_FIELD_NUMBER));
