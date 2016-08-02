@@ -7,9 +7,11 @@ import java.util.concurrent.TimeUnit;
 
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.config.GameSettings;
+import pm.cat.pogoserv.game.control.AuthHandler;
 import pm.cat.pogoserv.game.control.ObjectController;
 import pm.cat.pogoserv.game.control.ObjectLoader;
 import pm.cat.pogoserv.game.control.PokemonGen;
+import pm.cat.pogoserv.game.control.impl.DefaultAuthHandler;
 import pm.cat.pogoserv.game.control.impl.DefaultObjectController;
 import pm.cat.pogoserv.game.control.impl.DefaultPokemonGen;
 import pm.cat.pogoserv.game.model.world.World;
@@ -23,6 +25,7 @@ public class Game {
 	public ObjectLoader objectLoader;
 	public ObjectController objectController;
 	public PokemonGen pokegen;
+	public AuthHandler authHandler;
 
 	public final GameSettings settings;
 	private final ScheduledThreadPoolExecutor executor;
@@ -36,6 +39,7 @@ public class Game {
 		objectController = new DefaultObjectController(this);
 		uidManager = new UidManager(1);
 		world = new World(this);
+		authHandler = new DefaultAuthHandler(this);
 	}
 	
 	public void shutdown(){

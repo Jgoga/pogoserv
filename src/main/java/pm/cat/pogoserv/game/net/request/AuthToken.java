@@ -20,6 +20,7 @@ public class AuthToken {
 	public String parseID(){
 		if(provider.equals("google"))
 			return parseGoogleToken(content);
+		
 		return null;
 	}
 	

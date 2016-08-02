@@ -9,8 +9,9 @@ public interface Constants {
 	
 	/* RequestEnvelope status_code values (not sure if these are correct) */
 	public static final int SERVER_OK = 1;
+	public static final int SERVER_AUTH_OK = 2;
 	public static final int SERVER_NEW_RPC_ENDPOINT = 53;
-	public static final int SERVER_BUSY = 102;
+	public static final int SERVER_INVALID_TOKEN = 102;
 	
 	/* Game constants */
 	public static final int NUM_TYPES = 18;

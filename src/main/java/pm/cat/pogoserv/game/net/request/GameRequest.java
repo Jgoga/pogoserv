@@ -10,11 +10,10 @@ public class GameRequest {
 	public final HttpRequest http;
 	public final Player player;
 	
-	public GameRequest(Game game, HttpRequest re){
+	public GameRequest(Game game, Player player, HttpRequest re){
 		this.game = game;
 		this.http = re;
-		this.player = game.world.player(re.request.getAuthInfo());
-		player.setPosition(re.request.getLatitude(), re.request.getLongitude());
+		this.player = player;
 	}
 	
 }

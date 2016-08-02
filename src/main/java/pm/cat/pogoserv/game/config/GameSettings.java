@@ -46,8 +46,7 @@ public class GameSettings {
 	public String dataPath;
 	public String playerDataPath;
 	
-	// Time to keep players cached (in minutes)
-	public int playerCacheTime = 10;
+	public long authDurationMs = 1000 * 60 * 10;
 	
 	//
 	// (unofficial) game settings

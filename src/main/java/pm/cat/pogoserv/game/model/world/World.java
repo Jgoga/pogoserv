@@ -1,23 +1,12 @@
 package pm.cat.pogoserv.game.model.world;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
 import com.google.common.geometry.S2CellId;
-import com.google.common.geometry.S2LatLng;
 
-import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope.AuthInfo;
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.Game;
-import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.net.request.AuthToken;
 import pm.cat.pogoserv.util.Locatable;
-import pm.cat.pogoserv.util.Uid2;
 
 // TODO: Maybe use bigger/smaller cells than level 15 (like a quad tree)
 // TODO: Dynamic cell loading/unloading
@@ -26,18 +15,10 @@ public class World {
 	// TODO Turn this into a LoadingCache
 	private final ConcurrentHashMap<Long, WorldCell> cells = new ConcurrentHashMap<>();
 	
-	private final LoadingCache<AuthToken, Player> players;
-	
 	private final Game game;
 	
 	public World(Game game){
 		this.game = game;
-		
-		players = CacheBuilder.newBuilder()
-				.softValues()
-				.expireAfterAccess(game.settings.playerCacheTime, TimeUnit.MINUTES)
-				.removalListener(((RemovalListener<AuthToken, Player>)t -> game.objectController.reapPlayer(t.getValue())))
-				.build(new PlayerLoader());
 	}
 	
 	public WorldCell getCell(Locatable l){
@@ -64,20 +45,6 @@ public class World {
 			cells.put(id.id(), ret);
 		}
 		return ret;
-	}
-	
-	public Player player(AuthInfo auth){
-		return player(AuthToken.fromAuthInfo(auth));
-	}
-	
-	public Player player(AuthToken auth){
-		try{
-			return players.get(auth);
-		}catch(Exception e){
-			Log.e("World", "Error while getting player " + auth);
-			Log.e("World", e);
-			return null;
-		}
 	}
 	
 	public <T extends MapObject> T addObject(T t){
@@ -113,15 +80,6 @@ public class World {
 	
 	public static String objidString(long cellId, long objectId){
 		return Long.toHexString(cellId) + "." + Long.toHexString(objectId);
-	}
-	
-	private class PlayerLoader extends CacheLoader<AuthToken, Player> {
-
-		@Override
-		public Player load(AuthToken key) {
-			return game.objectController.newPlayer(key);
-		}
-		
 	}
 	
 }

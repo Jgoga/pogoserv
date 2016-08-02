@@ -34,4 +34,8 @@ public class Random {
 		return fs[nextInt(fs.length)];
 	}
 	
+	public static void nextBytes(byte[] buf){
+		random.nextBytes(buf);
+	}
+	
 }
