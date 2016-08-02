@@ -14,17 +14,13 @@ public class TimestampVarPool {
 			if(head == null){
 				head = tail = ret;
 			}else{
-				appendTail(ret);
+				ret.next = head;
+				head.prev = ret;
+				head = ret;
+				ret.prev = null;
 			}
 		}
 		return ret;
-	}
-	
-	private void appendTail(TSNode<?> node){
-		tail.next = node;
-		node.prev = tail;
-		tail = node;
-		node.next = null;
 	}
 	
 	public TSNode<?> getHead(){
@@ -52,7 +48,10 @@ public class TimestampVarPool {
 					if(prev != null)
 						prev.next = next;
 					next.prev = prev;
-					appendTail(this);
+					tail.next = this;
+					this.prev = tail;
+					tail = this;
+					this.next = null;
 				}
 			}
 			return t;

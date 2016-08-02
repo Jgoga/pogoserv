@@ -75,6 +75,9 @@ public class GetMapObjectsHandler implements RequestHandler {
 						MapPokemon p = (MapPokemon) o;
 						double dist = p.distanceTo(playerPos);
 						
+						if(req.player.hasEncountered(p.getUID()))
+							continue;
+						
 						// XXX: pokemon has timed out but not cleaned up yet
 						//      (This should not happen)
 						if(p.disappearTimestamp <= ts){

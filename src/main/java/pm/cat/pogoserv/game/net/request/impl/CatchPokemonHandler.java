@@ -3,12 +3,13 @@ package pm.cat.pogoserv.game.net.request.impl;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;
 
-import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Data.Capture.POGOProtosDataCapture.CaptureAward;
 import POGOProtos.Enums.POGOProtosEnums.ActivityType;
+import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.CatchPokemonMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.CatchPokemonResponse;
 import pm.cat.pogoserv.Log;
+import pm.cat.pogoserv.game.model.player.Player;
 import pm.cat.pogoserv.game.model.world.Encounter;
 import pm.cat.pogoserv.game.net.request.GameRequest;
 import pm.cat.pogoserv.game.net.request.RequestHandler;
@@ -27,17 +28,20 @@ public class CatchPokemonHandler implements RequestHandler {
 		//       Now we just assume we get every pokemon
 		//       Also fleeing should be implemented
 		
-		Encounter e = req.player.currentEncounter;
+		Player p = req.player;
+		Encounter e = p.currentEncounter;
 		// If some other thread was writing to currentEncounter and it gets nulled
 		// it's the player's own fault for spamming requests
-		req.player.currentEncounter = null;
+		p.currentEncounter = null;
 		
 		if(e == null || !e.isValid() || m.getEncounterId() != e.sourceUid){
 			Log.w("Catch", "Invalid encounter: " + e + " (request uid: %x)", m.getEncounterId());
 			return resp.setStatus(CatchPokemonResponse.CatchStatus.CATCH_FLEE);
 		}
 		
-		req.player.inventory.addPokemon(e.pokemon);
+		p.setEncountered(e.spawn.getActivePokemon());
+		e.pokemon.pokeball = m.getPokeball();
+		p.inventory.addPokemon(e.pokemon).write();
 		
 		// TODO: ActivityType exp rewards
 		
@@ -47,7 +51,8 @@ public class CatchPokemonHandler implements RequestHandler {
 				.addXp(100)
 				.addCandy(3)
 				.addStardust(0))
-			.setCapturedPokemonId(e.pokemon.getUID());
+			.setCapturedPokemonId(e.pokemon.getUID())
+			.setStatus(CatchPokemonResponse.CatchStatus.CATCH_SUCCESS);
 	}
 
 }

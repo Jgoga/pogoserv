@@ -87,6 +87,10 @@ public class Player implements Unique, Locatable {
 	}
 	
 	public void setEncountered(MapPokemon mp){
+		if(mp == null){
+			Log.e("Player", "Attempt set a null encounter, this should not happen!");
+			return;
+		}
 		encounters.put(mp.getUID(), mp);
 	}
 	

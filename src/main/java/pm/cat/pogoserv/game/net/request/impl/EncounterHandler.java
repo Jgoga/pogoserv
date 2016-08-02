@@ -11,6 +11,7 @@ import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessa
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.EncounterResponse;
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.model.player.InventoryPokemon;
+import pm.cat.pogoserv.game.model.player.Player;
 import pm.cat.pogoserv.game.model.world.Encounter;
 import pm.cat.pogoserv.game.model.world.MapObject;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
@@ -52,24 +53,25 @@ public class EncounterHandler implements RequestHandler {
 			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_FOUND);
 		}
 		
-		if(req.player.hasEncountered(uid)){
-			Log.w("Encounter", "Encounter (%x, %x) already happened.", req.player.getUID(), uid);
+		Player p = req.player;
+		if(p.hasEncountered(uid)){
+			Log.w("Encounter", "Encounter (%x, %x) already happened.", p.getUID(), uid);
 			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_ALREADY_HAPPENED);
 		}
 		
-		if(req.player.distanceTo(mp) > req.game.settings.mapEncounterRange){
-			Log.w("Encounter", "Too far. Distance=%.2f, max=%.2f", req.player.distanceTo(mp), req.game.settings.mapEncounterRange);
+		if(p.distanceTo(mp) > req.game.settings.mapEncounterRange){
+			Log.w("Encounter", "Too far. Distance=%.2f, max=%.2f", p.distanceTo(mp), req.game.settings.mapEncounterRange);
 			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_IN_RANGE);
 		}
 		
-		if(req.player.inventory.uniqueItemCount() >= req.player.inventory.maxPokemonStorage){
-			Log.w("Encounter", "No space (%d)", req.player.inventory.uniqueItemCount());
+		if(p.inventory.uniqueItemCount() >= p.inventory.maxPokemonStorage){
+			Log.w("Encounter", "No space (%d)", p.inventory.uniqueItemCount());
 			return resp.setStatus(EncounterResponse.Status.POKEMON_INVENTORY_FULL);
 		}
 		
-		InventoryPokemon p = req.game.pokegen.createEncounter(mp, req.player, req.game.uidManager.next());
-		p.capturedCellId = mp.getS2CellId().id();
-		req.player.currentEncounter = new Encounter(spawn, p, mp.getUID());
+		InventoryPokemon poke = req.game.pokegen.createEncounter(mp, p, req.game.uidManager.next());
+		poke.capturedCellId = mp.getS2CellId().id();
+		p.currentEncounter = new Encounter(spawn, poke, mp.getUID());
 		
 		return resp.setStatus(EncounterResponse.Status.ENCOUNTER_SUCCESS)
 			.setWildPokemon(ProtobufMapper.wildPokemon(WildPokemon.newBuilder(), mp, true))
