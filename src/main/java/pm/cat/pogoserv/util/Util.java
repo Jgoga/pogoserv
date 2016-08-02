@@ -84,8 +84,6 @@ public class Util {
 		return new String(Base64.getDecoder().decode(s));
 	}
 	
-	
-	
 	static {
 		HTTP_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("GMT"));
 	}

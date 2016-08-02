@@ -2,6 +2,7 @@ package pm.cat.pogoserv.core.net;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -25,9 +26,9 @@ public class HttpRequest {
 		response.setRequestId(request.getRequestId());
 	}
 	
-	public byte[] toByteArray(){
+	public void writeTo(OutputStream out) throws IOException {
 		response.setStatusCode(protoStatus);
-		return response.build().toByteArray();
+		response.build().writeTo(out);
 	}
 	
 	public void writeResponseHeaders(Headers h){
