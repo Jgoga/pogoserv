@@ -34,9 +34,9 @@ public class DefaultObjectController implements ObjectController {
 		ret.pokecoins.write().amt = 100;
 		ret.stardust.write().amt = 1337;
 		// Just some test pokeballs
-		ret.inventory.item(game.settings.getItem(ItemId.ITEM_POKE_BALL_VALUE)).write().count = 50;
-		ret.inventory.item(game.settings.getItem(ItemId.ITEM_GREAT_BALL_VALUE)).write().count = 25;
-		ret.inventory.item(game.settings.getItem(ItemId.ITEM_MASTER_BALL_VALUE)).write().count = 10;
+		ret.inventory.addItems(game.settings.getItem(ItemId.ITEM_POKE_BALL_VALUE), 50);
+		ret.inventory.addItems(game.settings.getItem(ItemId.ITEM_GREAT_BALL_VALUE), 5);
+		ret.inventory.addItems(game.settings.getItem(ItemId.ITEM_MASTER_BALL_VALUE), 2);
 
 		// TODO: Database stuff goes here
 		PlayerInfo.setDefaults(ret.stats);

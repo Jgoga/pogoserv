@@ -28,8 +28,9 @@ public class DefaultPokemonGen implements PokemonGen {
 	public InventoryPokemon createEncounter(MapPokemon src, Player p, long uid) {
 		InventoryPokemon ret = new InventoryPokemon(src.pokemon.def, uid);
 		ret.copyFrom(src.pokemon);
-		ret.setCpMultiplier((float) (src.spawnParameter * Math.sqrt(p.getLevel())));
-		ret.setAdditionalCpMultiplier(0);
+		int pokemonLevel = (int) Math.max(1, 2 * src.spawnParameter * p.getLevel());
+		ret.setCapturedLevel(pokemonLevel);
+		ret.setLevel(pokemonLevel);
 		ret.creationTimestamp = System.currentTimeMillis();
 		return ret;
 	}

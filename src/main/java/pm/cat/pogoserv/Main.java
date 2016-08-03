@@ -67,7 +67,7 @@ public class Main {
 		
 		s.listen();
 		
-		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*180, 1000*160, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 },
+		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*120, 1000*90, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 },
 				62.601, 29.7636, g.uidManager.next());
 		g.world.addObject(spawn);
 		

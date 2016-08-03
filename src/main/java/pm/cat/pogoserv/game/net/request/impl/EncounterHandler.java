@@ -4,6 +4,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Data.Capture.POGOProtosDataCapture.CaptureProbability;
+import POGOProtos.Data.POGOProtosData.PokemonData;
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.WildPokemon;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
@@ -70,11 +71,14 @@ public class EncounterHandler implements RequestHandler {
 		}
 		
 		InventoryPokemon poke = req.game.pokegen.createEncounter(mp, p, req.game.uidManager.next());
+		poke.setFullStamina();
 		poke.capturedCellId = mp.getS2CellId().id();
 		p.currentEncounter = new Encounter(spawn, poke, mp.getUID());
 		
 		return resp.setStatus(EncounterResponse.Status.ENCOUNTER_SUCCESS)
-			.setWildPokemon(ProtobufMapper.wildPokemon(WildPokemon.newBuilder(), mp, true))
+			.setWildPokemon(
+					ProtobufMapper.wildPokemon(WildPokemon.newBuilder(), mp)
+					.setPokemonData(ProtobufMapper.instancedPokemon(PokemonData.newBuilder(), poke)))
 			.setBackground(EncounterResponse.Background.PARK)
 			.setCaptureProbability(getCaptureProbability(mp));
 	}

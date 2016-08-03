@@ -28,7 +28,7 @@ public abstract class SpawnPoint extends MapObject {
 		
 		game.submit(this::despawnPokemon, dur);
 		return activePokemon = game.world.addObject(
-				new MapPokemon(this, p, Random.nextFloat(0.5f, 0.9f), dur, lat, lng, game.uidManager.next()));
+				new MapPokemon(this, p, Random.nextFloat(0.2f, 1.0f), dur, lat, lng, game.uidManager.next()));
 	}
 	
 	public void despawnPokemon(Game game){

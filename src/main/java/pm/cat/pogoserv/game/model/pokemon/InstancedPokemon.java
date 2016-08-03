@@ -1,16 +1,18 @@
 package pm.cat.pogoserv.game.model.pokemon;
 
+import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.config.PokemonDef;
 
 // TODO: the cp/stat calculations here are probably wrong and absolutely broken
 public class InstancedPokemon extends Pokemon {
 	
-	private float cpMultiplier;
-	private float additionalCpMultiplier = 0f;
-	
 	private int cp;
 	private int attack, defence, stamina;
 	private int currentStamina;
+	
+	// Maximum pokemon level is (I think) trainer level * 2
+	// Each power up gives 1 pokemon level
+	private int level, capturedLevel;
 	
 	public InstancedPokemon(PokemonDef def) {
 		super(def);
@@ -18,39 +20,26 @@ public class InstancedPokemon extends Pokemon {
 	
 	public void copyFrom(InstancedPokemon other){
 		super.copyFrom(other);
-		this.cpMultiplier = other.cpMultiplier;
-		this.additionalCpMultiplier = other.additionalCpMultiplier;
 		cp = other.cp;
 		attack = other.attack;
 		defence = other.defence;
 		stamina = other.stamina;
 		currentStamina = other.currentStamina;
-	}
-	
-	public float getCpMultiplier(){
-		return cpMultiplier;
-	}
-	
-	public void setCpMultiplier(float cpMultiplier){
-		this.cpMultiplier = cpMultiplier;
-	}
-	
-	public float getAdditionalCpMultiplier(){
-		return additionalCpMultiplier;
-	}
-	
-	public void setAdditionalCpMultiplier(float f){
-		additionalCpMultiplier = f;
+		level = other.level;
+		capturedLevel = other.capturedLevel;
 		recalcStats();
 	}
 	
-	public float getEffectiveCpMultiplier(){
-		return cpMultiplier + additionalCpMultiplier;
+	public float getCpMultiplier(){
+		return (float) (0.095 * Math.sqrt(capturedLevel));
 	}
-
-	// Not sure how this is calculated but it's approx sqrt(trainerLevel)
-	public float getMaxEffectiveCpMultiplier(int trainerLevel){
-		return (float) (0.95 * Math.sqrt(trainerLevel));
+	
+	public float getEffectiveCpMultiplier(){
+		return (float) (0.095 * Math.sqrt(level));
+	}
+	
+	public float getAdditionalCpMultiplier(){
+		return getEffectiveCpMultiplier() - getCpMultiplier();
 	}
 	
 	public int getAttack(){
@@ -69,6 +58,10 @@ public class InstancedPokemon extends Pokemon {
 		return cp;
 	}
 	
+	public void setFullStamina(){
+		currentStamina = stamina;
+	}
+	
 	public void setCurrentStamina(int stam){
 		if(stam > stamina)
 			stam = stamina;
@@ -79,12 +72,30 @@ public class InstancedPokemon extends Pokemon {
 		return currentStamina;
 	}
 	
+	public int getLevel(){
+		return level;
+	}
+	
+	public int getNumUpgrades(){
+		return level - capturedLevel;
+	}
+	
+	public void setCapturedLevel(int capturedLevel){
+		this.capturedLevel = capturedLevel;
+	}
+	
+	public void setLevel(int level){
+		this.level = level;
+		recalcStats();
+	}
+	
 	private void recalcStats(){
 		float ecpm = getEffectiveCpMultiplier();
 		attack = (int) ((def.baseAtk + ivAtk) * ecpm);
 		defence = (int) ((def.baseDef + ivDef) * ecpm);
 		stamina = (int) ((def.baseSta + ivSta) * ecpm);
-		cp = (int) Math.floor(attack * Math.sqrt(defence) * Math.sqrt(stamina) / 10);
+		cp = (int) Math.max(10, attack * Math.sqrt(defence) * Math.sqrt(stamina) / 10);
+		Log.d("IP", "%s: Recalculated stats. Atk=%d, Def=%d, Sta=%d, CP=%d", this, attack, defence, stamina, cp);
 	}
 
 }

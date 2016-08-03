@@ -4,6 +4,7 @@ import com.google.common.geometry.S2LatLng;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.MessageLiteOrBuilder;
 
+import POGOProtos.Data.POGOProtosData.PokemonData;
 import POGOProtos.Map.POGOProtosMap.MapCell;
 import POGOProtos.Map.POGOProtosMap.MapObjectsStatus;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.NearbyPokemon;
@@ -89,8 +90,15 @@ public class GetMapObjectsHandler implements RequestHandler {
 							mc.addCatchablePokemons(ProtobufMapper.mapPokemon(mp, p));
 						
 						if(dist < settings.mapPokemonVisibleRange)
-							mc.addWildPokemons(ProtobufMapper.wildPokemon(wp, p, false));
+							mc.addWildPokemons(ProtobufMapper.wildPokemon(wp, p)
+								.setPokemonData(PokemonData.newBuilder().setPokemonIdValue(p.pokemon.def.id)));
 							
+						// I think this works, but there is a bug in the client (at least versions before 0.31.0)
+						// Catchable and wild pokemon disappear correctly (they have expire timestamp, and time_till_hidden)
+						// But nearby pokemon that are not in visible range will haunt even after disappearing
+						// The client seems to never clear them
+						// (or there is a bug somewhere in sending nearby pokemon, 
+						//  but I got the same results when I tested on official servers)
 						if(dist < settings.mapPokeNavRange)
 							mc.addNearbyPokemons(ProtobufMapper.nearbyPokemon(np, p, playerPos));
 						

@@ -81,7 +81,7 @@ public class ProtobufMapper {
 		return dest.setItemIdValue(i.def.id).setCount(i.count);
 	}
 	
-	public static WildPokemon.Builder wildPokemon(WildPokemon.Builder dest, MapPokemon mp, boolean encounter){
+	public static WildPokemon.Builder wildPokemon(WildPokemon.Builder dest, MapPokemon mp){
 		dest.setEncounterId(mp.getUID())
 			// TODO: This usually seems to increase per request, but idk how it's determined
 			.setLastModifiedTimestampMs(System.currentTimeMillis()) 
@@ -89,10 +89,6 @@ public class ProtobufMapper {
 			.setLongitude(mp.getLongitude())
 			.setSpawnPointId(mp.source.spawnPointId)
 			.setTimeTillHiddenMs((int) (mp.disappearTimestamp - System.currentTimeMillis()));
-		if(encounter)
-			dest.setPokemonData(pokemon(PokemonData.newBuilder(), mp.pokemon));
-		else
-			dest.setPokemonData(PokemonData.newBuilder().setPokemonIdValue(mp.pokemon.def.id));
 		
 		return dest;
 	}
