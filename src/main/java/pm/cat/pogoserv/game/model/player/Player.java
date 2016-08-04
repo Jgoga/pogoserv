@@ -20,7 +20,7 @@ import pm.cat.pogoserv.util.Util;
 public class Player implements Unique, Locatable {
 	
 	private final long uid;
-	Game game;
+	private Game game;
 	
 	public String nickname;
 	public AuthToken auth;
@@ -58,11 +58,15 @@ public class Player implements Unique, Locatable {
 				.build();
 	}
 	
-	public void attachTo(Game g){
+	public void init(Game g){
 		this.game = g;
 		inventory.maxItemStorage = g.settings.invBaseBagItems;
 		inventory.maxPokemonStorage = g.settings.invBasePokemon;
 		recalcLevel();
+	}
+	
+	public Game getGame(){
+		return game;
 	}
 	
 	public TimestampVarPool getPool(){
@@ -77,7 +81,12 @@ public class Player implements Unique, Locatable {
 		return stats.level.read().value;
 	}
 	
-	public void setEXP(long exp){
+	public void addExp(long exp){
+		// if lucky egg then 2*exp
+		setExp(stats.exp.read().value + exp);
+	}
+	
+	public void setExp(long exp){
 		stats.exp.write().value = exp;
 		recalcLevel();
 	}
@@ -95,12 +104,13 @@ public class Player implements Unique, Locatable {
 	}
 	
 	private void recalcLevel(){
-		int level = Util.insertionPoint(game.settings.playerRequiredExp, (int) getExp());
+		long exp = getExp();
+		int level = game.settings.levelForExp(exp);
 		if(level != getLevel()){
-			stats.level.write().value = 0;
-			stats.nextLevelExp.write().value = level == game.settings.maxLevel() ?
-				0L : game.settings.playerRequiredExp[level+1];
+			stats.level.write().value = level;
 		}
+		stats.nextLevelExp.write().value = level == game.settings.maxLevel() ?
+			0L : (game.settings.expForLevel(level+1) - exp);
 	}
 	
 	@Override

@@ -397,8 +397,16 @@ public class GameSettings {
 		return moves.get(id);
 	}
 	
+	public int levelForExp(long exp){
+		return Util.insertionPoint(playerRequiredExp, (int) exp);
+	}
+	
+	public long expForLevel(int level){
+		return playerRequiredExp[level-1];
+	}
+	
 	public int maxLevel(){
-		return playerRequiredExp.length - 1;
+		return playerRequiredExp.length;
 	}
 	
 	public Iterable<AssetDef> getAssets(){

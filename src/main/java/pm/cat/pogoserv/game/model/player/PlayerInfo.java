@@ -6,9 +6,9 @@ import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
 
 public class PlayerInfo {
 	
-	final TSNode<Stat<Long>> exp;
-	final TSNode<Stat<Integer>> level;
-	final TSNode<Stat<Long>> nextLevelExp;
+	public final TSNode<Stat<Long>> exp;
+	public final TSNode<Stat<Integer>> level;
+	public final TSNode<Stat<Long>> nextLevelExp;
 	public final TSNode<Stat<Integer>> numPokemonEncountered;
 	public final TSNode<Stat<Integer>> numPokemonCaptured;
 	public final TSNode<Stat<Float>> kmWalked;

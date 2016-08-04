@@ -32,6 +32,7 @@ public class DefaultPokemonGen implements PokemonGen {
 		ret.setCapturedLevel(pokemonLevel);
 		ret.setLevel(pokemonLevel);
 		ret.creationTimestamp = System.currentTimeMillis();
+		ret.init(p);
 		return ret;
 	}
 	

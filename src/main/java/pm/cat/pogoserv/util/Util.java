@@ -65,7 +65,8 @@ public class Util {
 	}
 	
 	public static int insertionPoint(int[] is, int i){
-		return Math.abs(Arrays.binarySearch(is, i)) + 1;
+		int ret = Arrays.binarySearch(is, i);
+		return ret >= 0 ? ret : (-ret-1);
 	}
 	
 	public static String httpDate(long ts){

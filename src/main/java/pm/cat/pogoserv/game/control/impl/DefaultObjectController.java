@@ -41,7 +41,8 @@ public class DefaultObjectController implements ObjectController {
 		// TODO: Database stuff goes here
 		PlayerInfo.setDefaults(ret.stats);
 		Appearance.setDefaults(ret.appearance);
-		ret.attachTo(game);
+		ret.init(game);
+		ret.setExp(12345);
 		return ret;
 	}
 

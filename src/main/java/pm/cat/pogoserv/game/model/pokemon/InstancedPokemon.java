@@ -2,9 +2,11 @@ package pm.cat.pogoserv.game.model.pokemon;
 
 import pm.cat.pogoserv.Log;
 import pm.cat.pogoserv.game.config.PokemonDef;
+import pm.cat.pogoserv.game.model.player.Player;
 
-// TODO: the cp/stat calculations here are probably wrong and absolutely broken
 public class InstancedPokemon extends Pokemon {
+	
+	protected Player owner;
 	
 	private int cp;
 	private int attack, defence, stamina;
@@ -30,12 +32,21 @@ public class InstancedPokemon extends Pokemon {
 		recalcStats();
 	}
 	
+	public void init(Player owner){
+		this.owner = owner;
+		recalcStats();
+	}
+	
+	public Player getOwner(){
+		return owner;
+	}
+	
 	public float getCpMultiplier(){
-		return (float) (0.095 * Math.sqrt(capturedLevel));
+		return owner.getGame().settings.playerCpMultiplier[capturedLevel];
 	}
 	
 	public float getEffectiveCpMultiplier(){
-		return (float) (0.095 * Math.sqrt(level));
+		return owner.getGame().settings.playerCpMultiplier[level];
 	}
 	
 	public float getAdditionalCpMultiplier(){
@@ -85,8 +96,15 @@ public class InstancedPokemon extends Pokemon {
 	}
 	
 	public void setLevel(int level){
+		if(owner != null && level > 2*owner.getLevel()){
+			Log.w("InstancedPokemon", "%s: %s: Attempted to set level higher than max %d>2*%d", this, owner, level, owner.getLevel());
+			return;
+		}
+		
 		this.level = level;
-		recalcStats();
+		
+		if(owner != null)
+			recalcStats();
 	}
 	
 	private void recalcStats(){
@@ -95,7 +113,7 @@ public class InstancedPokemon extends Pokemon {
 		defence = (int) ((def.baseDef + ivDef) * ecpm);
 		stamina = (int) ((def.baseSta + ivSta) * ecpm);
 		cp = (int) Math.max(10, attack * Math.sqrt(defence) * Math.sqrt(stamina) / 10);
-		Log.d("IP", "%s: Recalculated stats. Atk=%d, Def=%d, Sta=%d, CP=%d", this, attack, defence, stamina, cp);
+		Log.d("InstancedPokemon", "%s: Recalculated stats. Atk=%d, Def=%d, Sta=%d, CP=%d", this, attack, defence, stamina, cp);
 	}
 
 }
