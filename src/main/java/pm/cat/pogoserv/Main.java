@@ -1,21 +1,19 @@
 package pm.cat.pogoserv;
 
 import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
-import pm.cat.pogoserv.core.Constants;
-import pm.cat.pogoserv.core.PSThreadPoolExecutor;
-import pm.cat.pogoserv.core.net.AssetServer;
-import pm.cat.pogoserv.core.net.Server;
-import pm.cat.pogoserv.core.net.SimpleRPCHandleAllocator;
 import pm.cat.pogoserv.db.Database;
-import pm.cat.pogoserv.db.DatabaseObjectLoader;
+import pm.cat.pogoserv.db.DatabaseObjectMapper;
 import pm.cat.pogoserv.game.Game;
 import pm.cat.pogoserv.game.config.GameSettings;
-import pm.cat.pogoserv.game.control.ObjectLoader;
 import pm.cat.pogoserv.game.model.world.PeriodicSpawnPoint;
-import pm.cat.pogoserv.game.net.request.GameRequestFilter;
-import pm.cat.pogoserv.game.net.request.RequestDispatcher;
-import pm.cat.pogoserv.game.net.request.Unknown6Handler;
+import pm.cat.pogoserv.game.model.world.World;
+import pm.cat.pogoserv.game.net.GameService;
+import pm.cat.pogoserv.game.net.RpcAllocationService;
+import pm.cat.pogoserv.net.Server;
+import pm.cat.pogoserv.net.util.FileService;
 import pm.cat.pogoserv.util.Util;
 
 public class Main {
@@ -41,41 +39,45 @@ public class Main {
 		
 		Log.i("Main", "Initializing thread pools.");
 		Log.i("Main", "Game threads: %d, Database threads: %d (%d)", gameThreads, dbCoreThreads, dbMaxThreads);
-		PSThreadPoolExecutor e = new PSThreadPoolExecutor(gameThreads);
+		ScheduledExecutorService exec = new PSThreadPool(gameThreads);
 		Database.loadSqliteDriver();
 		Database db = new Database(database, dbCoreThreads, dbMaxThreads, 300);
-		ObjectLoader ol = new DatabaseObjectLoader(db);
+		DatabaseObjectMapper dbmapper = new DatabaseObjectMapper(db);
 		
-		GameSettings gs = new GameSettings();
-		gs.dataPath = dataPath;
-		gs.assetHostPrefix = "https://" + rpcHost + "/assets/";
-		gs.parseAll();
+		GameSettings settings = new GameSettings();
+		settings.dataPath = dataPath;
+		settings.assetHostPrefix = "https://" + rpcHost + "/assets/";
+		settings.parseAll();
 		
-		Game g = new Game(gs, ol, e);
+		Game g = new Game(settings, exec);
+		g.getEventListeners().registerDefaults();
+		g.init(new World(dbmapper));
 		
-		Server s = new Server(e);
-		Log.d("Main", "Using asset version: %d", Constants.ASSET_VERSION);
-		s.createContext("/assets/", new AssetServer(dataPath));
+		GameService gs = new GameService(g);
+		gs.getRequestDispatcher().registerDefaults();
+		gs.setPlayerMapper(dbmapper);
+		
+		Server s = new Server(exec);
+
+		Log.d("Main", "Using asset version: %d", Config.ASSET_VERSION);
+		s.addService("/assets/", new FileService(dataPath));
+		s.addService(Config.NEW_RPC_ENDPOINT, RpcAllocationService.constantAllocator(rpcHost, 1));
+		s.addService(String.format(Config.RPC_ENDPOINT, 1) + "/rpc", gs);
+		
 		s.bind(port);
-		
-		int rpc = s.addRpcHandler(
-			new GameRequestFilter(g,
-					new RequestDispatcher().registerDefaults()
-						.then(new Unknown6Handler()))
-		);
-		s.setRpcAllocator(new SimpleRPCHandleAllocator(rpcHost, rpc));
-		
 		s.listen();
 		
-		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(1000*120, 1000*90, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 },
-				62.601, 29.7636, g.uidManager.next());
-		g.world.addObject(spawn);
+		PeriodicSpawnPoint spawn = new PeriodicSpawnPoint(g.getUidGen().next(), 62.601, 29.7636,
+				1000*120, 1000*90, new int[]{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 17, 150, 144, 145, 146 });
+		spawn.init(g);
+		g.getWorld().add(spawn);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override
 			public void run(){
-				e.shutdown();
+				exec.shutdown();
 				db.shutdown();
+				gs.shutdown();
 				Log.i("Main", "Bye");
 			}
 		});

@@ -4,18 +4,17 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import POGOProtos.Enums.POGOProtosEnums.TeamColor;
+import pm.cat.pogoserv.Config;
 import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.game.config.GameSettings;
 import pm.cat.pogoserv.game.model.world.Encounter;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
-import pm.cat.pogoserv.game.model.world.SpawnPoint;
-import pm.cat.pogoserv.game.net.request.AuthToken;
+import pm.cat.pogoserv.game.session.AuthToken;
 import pm.cat.pogoserv.util.Locatable;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
 import pm.cat.pogoserv.util.Unique;
-import pm.cat.pogoserv.util.Util;
 
 public class Player implements Unique, Locatable {
 	
@@ -33,8 +32,8 @@ public class Player implements Unique, Locatable {
 
 	private final TimestampVarPool pool = new TimestampVarPool();
 	
-	public final TSNode<Currency> pokecoins = pool.allocate(new Currency(Constants.POKECOINS));
-	public final TSNode<Currency> stardust = pool.allocate(new Currency(Constants.STARDUST));
+	public final TSNode<Currency> pokecoins = pool.allocate(new Currency(Config.POKECOINS));
+	public final TSNode<Currency> stardust = pool.allocate(new Currency(Config.STARDUST));
 	
 	public final Inventory inventory;
 	public final Pokedex pokedex;
@@ -60,8 +59,9 @@ public class Player implements Unique, Locatable {
 	
 	public void init(Game g){
 		this.game = g;
-		inventory.maxItemStorage = g.settings.invBaseBagItems;
-		inventory.maxPokemonStorage = g.settings.invBasePokemon;
+		GameSettings settings = g.getSettings();
+		inventory.maxItemStorage = settings.invBaseBagItems;
+		inventory.maxPokemonStorage = settings.invBasePokemon;
 		recalcLevel();
 	}
 	
@@ -105,12 +105,13 @@ public class Player implements Unique, Locatable {
 	
 	private void recalcLevel(){
 		long exp = getExp();
-		int level = game.settings.levelForExp(exp);
+		GameSettings settings = game.getSettings();
+		int level = settings.levelForExp(exp);
 		if(level != getLevel()){
 			stats.level.write().value = level;
 		}
-		stats.nextLevelExp.write().value = level == game.settings.maxLevel() ?
-			0L : (game.settings.expForLevel(level+1) - exp);
+		stats.nextLevelExp.write().value = level == settings.maxLevel() ?
+			0L : (settings.expForLevel(level+1) - exp);
 	}
 	
 	@Override

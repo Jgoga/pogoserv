@@ -2,15 +2,18 @@ package pm.cat.pogoserv.game.model.world;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.geometry.S2Cell;
 import com.google.common.geometry.S2CellId;
+import com.google.common.geometry.S2LatLng;
+
+import pm.cat.pogoserv.Log;
+import pm.cat.pogoserv.util.Locatable;
 
 // A S2Cell wrapper class
-public class WorldCell {
+public class WorldCell implements Locatable {
 	static final int LEVEL = 15;
 	
 	private final S2CellId cellId;
-	private final ConcurrentHashMap<Long, MapObject> objects = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<Long, UniqueLocatable> objects = new ConcurrentHashMap<>();
 	
 	WorldCell(long s2cellid){
 		this(new S2CellId(s2cellid));
@@ -24,25 +27,46 @@ public class WorldCell {
 		return cellId;
 	}
 	
-	public void add(MapObject obj){
+	public void add(UniqueLocatable obj){
 		objects.put(obj.getUID(), obj);
+		obj.onAdd(this);
 	}
 	
-	public MapObject get(long uid){
+	public UniqueLocatable get(long uid){
 		return objects.get(uid);
 	}
 	
 	public void remove(long uid){
-		objects.remove(uid);
+		UniqueLocatable ul = objects.remove(uid);
+		if(ul == null){
+			Log.e("WorldCell", "%s: Attempt to remove nonexisting object: %x", this, uid);
+			return;
+		}
+		ul.onRemove(this);
 	}
 	
-	public Iterable<MapObject> objects(){
+	public Iterable<UniqueLocatable> objects(){
 		return objects.values();
 	}
 	
 	@Override
 	public String toString(){
 		return "WorldCell[" + cellId.id() + "]";
+	}
+
+	@Override
+	public double getLatitude() {
+		return s2LatLngPos().latDegrees();
+	}
+
+	@Override
+	public double getLongitude() {
+		return s2LatLngPos().lngDegrees();
+	}
+	
+	@Override
+	public S2LatLng s2LatLngPos() {
+		return cellId.toLatLng();
 	}
 
 }

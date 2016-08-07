@@ -3,7 +3,6 @@ package pm.cat.pogoserv.game.model.player;
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
 import pm.cat.pogoserv.game.config.PokemonDef;
 import pm.cat.pogoserv.game.model.pokemon.InstancedPokemon;
-import pm.cat.pogoserv.game.model.pokemon.Pokemon;
 import pm.cat.pogoserv.util.Unique;
 
 public class InventoryPokemon extends InstancedPokemon implements Unique {

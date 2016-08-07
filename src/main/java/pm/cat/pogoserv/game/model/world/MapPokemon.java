@@ -5,16 +5,13 @@ import pm.cat.pogoserv.game.model.pokemon.Pokemon;
 // TODO: MapPokemon in the game seem static. Test if moving pokemon would work.
 public class MapPokemon extends MapObject {
 	
-	//public final long encounterId; // super.uid
-	//public String spawnPointId; // source.uid
-	
 	public final Pokemon pokemon;
 	public final SpawnPoint source;
 	public long appearTimestamp, disappearTimestamp;
 	public float spawnParameter;
 	
-	public MapPokemon(SpawnPoint source, Pokemon pokemon, float parm, long dts, double lat, double lng, long uid) {
-		super(lat, lng, uid);
+	public MapPokemon(long uid, double lat, double lng, SpawnPoint source, Pokemon pokemon, float parm, long dts) {
+		super(uid, lat, lng);
 		this.pokemon = pokemon;
 		this.source = source;
 		this.spawnParameter = parm;
@@ -24,7 +21,7 @@ public class MapPokemon extends MapObject {
 	
 	@Override
 	public String toString(){
-		return super.toString() + ": " + pokemon.toString() + " (" + source.getUIDString() + ")";
+		return super.toString() + ": " + pokemon.toString() + " (" + source.getUniqueStr() + ")";
 	}
 
 }

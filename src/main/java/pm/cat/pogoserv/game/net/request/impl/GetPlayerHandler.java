@@ -1,24 +1,30 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
 import POGOProtos.Data.POGOProtosData.PlayerData;
 import POGOProtos.Data.Player.POGOProtosDataPlayer.Currency;
 import POGOProtos.Data.Player.POGOProtosDataPlayer.PlayerAvatar;
 import POGOProtos.Enums.POGOProtosEnums.TutorialState;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetPlayerResponse;
-import pm.cat.pogoserv.core.Constants;
+import pm.cat.pogoserv.Config;
+import pm.cat.pogoserv.game.event.impl.GetPlayerEvent;
 import pm.cat.pogoserv.game.model.player.Appearance;
 import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class GetPlayerHandler implements RequestHandler {
+public class GetPlayerHandler implements RequestMapper<GetPlayerEvent> {
 
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) {
-		Player p = req.player;
+	public GetPlayerEvent parse(Request req, RequestEnvelope re) throws IOException {
+		return new GetPlayerEvent();
+	}
+
+	@Override
+	public Object write(GetPlayerEvent re) throws IOException {
+		Player p = re.getPlayer();
 		PlayerData.Builder ret = PlayerData.newBuilder()
 				.setCreationTimestampMs(p.creationTs)
 				.setUsername(p.nickname)
@@ -30,8 +36,8 @@ public class GetPlayerHandler implements RequestHandler {
 				// TODO Daily bonus
 				// TODO Equipped badge
 				// TODO Contact settings
-				.addCurrencies(Currency.newBuilder().setName(Constants.STARDUST).setAmount(p.stardust.read().amt))
-				.addCurrencies(Currency.newBuilder().setName(Constants.POKECOINS).setAmount(p.pokecoins.read().amt));
+				.addCurrencies(Currency.newBuilder().setName(Config.STARDUST).setAmount(p.stardust.read().amt))
+				.addCurrencies(Currency.newBuilder().setName(Config.POKECOINS).setAmount(p.pokecoins.read().amt));
 		
 		for(TutorialState ts : TutorialState.values()){
 			if(ts != TutorialState.UNRECOGNIZED)

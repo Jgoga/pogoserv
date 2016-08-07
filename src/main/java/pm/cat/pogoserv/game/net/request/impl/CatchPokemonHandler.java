@@ -1,75 +1,42 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
 import POGOProtos.Data.Capture.POGOProtosDataCapture.CaptureAward;
-import POGOProtos.Enums.POGOProtosEnums.ActivityType;
-import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.CatchPokemonMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.CatchPokemonResponse;
-import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.game.model.player.Item;
-import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.model.world.Encounter;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.event.impl.CatchPokemonEvent;
+import pm.cat.pogoserv.game.net.ProtobufMapper;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class CatchPokemonHandler implements RequestHandler {
+public class CatchPokemonHandler implements RequestMapper<CatchPokemonEvent> {
 	
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		CatchPokemonMessage m = CatchPokemonMessage.parseFrom(r.getRequestMessage());
-		CatchPokemonResponse.Builder resp = CatchPokemonResponse.newBuilder();
-		
-		ItemId pokeball = m.getPokeball();
-		if(pokeball == null){
-			Log.w("Catch", "Null pokeball");
-			return resp.setStatus(CatchPokemonResponse.CatchStatus.CATCH_ERROR);
-		}
+	public CatchPokemonEvent parse(Request req, RequestEnvelope re) throws IOException {
+		CatchPokemonMessage m = CatchPokemonMessage.parseFrom(req.getRequestMessage());
+		return new CatchPokemonEvent(
+				m.getEncounterId(),
+				m.getPokeball(),
+				m.getNormalizedReticleSize(),
+				m.getSpawnPointId(),
+				m.getHitPokemon(),
+				m.getSpinModifier(),
+				m.getNormalizedHitPosition());
+	}
 
-		Player p = req.player;
-		if(!p.inventory.containsItem(pokeball.getNumber())){
-			Log.w("Catch", "Dude doesn't have a " + pokeball);
-			return resp.setStatus(CatchPokemonResponse.CatchStatus.CATCH_ERROR);
+	@Override
+	public Object write(CatchPokemonEvent re) throws IOException {
+		CatchPokemonResponse.Builder ret = CatchPokemonResponse.newBuilder()
+				.setStatus(re.catchStatus);
+		if(re.catchStatus == CatchPokemonResponse.CatchStatus.CATCH_SUCCESS){
+			if(re.missPercent != 0)
+				ret.setMissPercent(re.missPercent);
+			ret.setCaptureAward(ProtobufMapper.captureAward(CaptureAward.newBuilder(), re.award));
 		}
 		
-		p.inventory.removeItems(pokeball.getNumber(), 1);
-		
-		if(!m.getHitPokemon())
-			return resp.setStatus(CatchPokemonResponse.CatchStatus.CATCH_MISSED);
-		
-		// TODO: Some calculations go here
-		//       Now we just assume we get every pokemon
-		//       Also fleeing should be implemented
-		
-		Encounter e = p.currentEncounter;
-		// If some other thread was writing to currentEncounter and it gets nulled
-		// it's the player's own fault for spamming requests
-		p.currentEncounter = null;
-		
-		if(e == null || !e.isValid() || m.getEncounterId() != e.sourceUid){
-			Log.w("Catch", "Invalid encounter: " + e + " (request uid: %x)", m.getEncounterId());
-			return resp.setStatus(CatchPokemonResponse.CatchStatus.CATCH_FLEE);
-		}
-		
-		p.setEncountered(e.spawn.getActivePokemon());
-		e.pokemon.pokeball = pokeball;
-		p.inventory.addPokemon(e.pokemon).write();
-		
-		Log.d("Catch", "Succesfully caught pokemon %s with %s", e.pokemon, pokeball);
-		
-		// TODO: ActivityType exp rewards
-		
-		return resp
-			.setCaptureAward(CaptureAward.newBuilder()
-				.addActivityType(ActivityType.ACTIVITY_CATCH_POKEMON)
-				.addXp(100)
-				.addCandy(3)
-				.addStardust(0))
-			.setCapturedPokemonId(e.pokemon.getUID())
-			.setStatus(CatchPokemonResponse.CatchStatus.CATCH_SUCCESS);
+		return ret;
 	}
 
 }

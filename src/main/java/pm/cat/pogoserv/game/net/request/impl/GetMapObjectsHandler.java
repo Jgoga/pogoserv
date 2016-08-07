@@ -1,36 +1,48 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
+import java.io.IOException;
+
 import com.google.common.geometry.S2LatLng;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Data.POGOProtosData.PokemonData;
 import POGOProtos.Map.POGOProtosMap.MapCell;
 import POGOProtos.Map.POGOProtosMap.MapObjectsStatus;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.NearbyPokemon;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.WildPokemon;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.GetMapObjectsMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetMapObjectsResponse;
-import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.game.config.GameSettings;
-import pm.cat.pogoserv.game.model.world.MapObject;
+import pm.cat.pogoserv.game.event.impl.GetMapObjectsEvent;
+import pm.cat.pogoserv.game.event.impl.GetMapObjectsEvent.CellInfo;
+import pm.cat.pogoserv.game.event.impl.GetMapObjectsEvent.MapObjectInfo;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
-import pm.cat.pogoserv.game.model.world.SpawnPoint;
-import pm.cat.pogoserv.game.model.world.WorldCell;
+import pm.cat.pogoserv.game.model.world.UniqueLocatable;
 import pm.cat.pogoserv.game.net.ProtobufMapper;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class GetMapObjectsHandler implements RequestHandler {
+public class GetMapObjectsHandler implements RequestMapper<GetMapObjectsEvent> {
 	
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		GetMapObjectsMessage gm = GetMapObjectsMessage.parseFrom(r.getRequestMessage());
-		GetMapObjectsResponse.Builder resp = GetMapObjectsResponse.newBuilder();
-		long ts = System.currentTimeMillis();
-		S2LatLng playerPos = req.player.s2LatLngPos();
+	public GetMapObjectsEvent parse(Request req, RequestEnvelope re) throws IOException {
+		GetMapObjectsMessage m = GetMapObjectsMessage.parseFrom(req.getRequestMessage());
+		GetMapObjectsEvent ret = new GetMapObjectsEvent(m.getCellIdCount());
+		for(int i=0;i<ret.size();i++){
+			ret.cellIds[i] = m.getCellId(i);
+			ret.sinceTs[i] = m.getSinceTimestampMs(i);
+		}
 		
+		return ret;
+	}
+
+	@Override
+	public Object write(GetMapObjectsEvent re) throws IOException {
+		GetMapObjectsResponse.Builder resp = GetMapObjectsResponse.newBuilder();
+		if(re.status != MapObjectsStatus.SUCCESS)
+			return resp.setStatus(re.status);
+		
+		long ts = System.currentTimeMillis();
+		S2LatLng pos = re.getPlayer().s2LatLngPos();
 		MapCell.Builder mc = MapCell.newBuilder();
 		WildPokemon.Builder wp = WildPokemon.newBuilder();
 		POGOProtos.Map.Pokemon.POGOProtosMapPokemon.MapPokemon.Builder mp = 
@@ -39,79 +51,38 @@ public class GetMapObjectsHandler implements RequestHandler {
 		POGOProtos.Map.POGOProtosMap.SpawnPoint.Builder sp =
 				POGOProtos.Map.POGOProtosMap.SpawnPoint.newBuilder();
 		
-		int cellCount = gm.getCellIdCount();
-		GameSettings settings = req.game.settings;
-		//System.out.println("Request has " + cellCount + " cells");
-		// TODO if cellCount > THRESHOLD, quit
-		for(int i=0;i<cellCount;i++){
-			long id = gm.getCellId(i);
-			mc.clear().setS2CellId(id).setCurrentTimestampMs(ts);
+		for(int i=0;i<re.size();i++){
+			CellInfo ci = re.cells[i];
+			mc.clear().setS2CellId(re.cellIds[i]);
 			
-			WorldCell cell = req.game.world.getCell(id);
-			//System.out.println(id + " => " + cell);
-			
-			if(cell != null){
-				for(MapObject o : cell.objects()){
-					//System.out.println("\t* " + o);
-					double lat = o.getLatitude();
-					double lng = o.getLongitude();
-					
-					if(o instanceof SpawnPoint){
-						sp.clear()
-							.setLatitude(lat)
-							.setLongitude(lng);
-						
-						// Official servers don't seem to send all spawn points
-						// TODO: When to send spawnpoints?
-						
-						//if(((SpawnPoint)o).hasPokemon())
-						//	mc.addSpawnPoints(sp);
-						
-						// TODO: What is a decimated spawn point ???
-						//       Official server never seems to send them, maybe it's unused
-						
-						//else
-						//	mc.addDecimatedSpawnPoints(sp);
-					}else if(o instanceof MapPokemon){
-						MapPokemon p = (MapPokemon) o;
-						double dist = p.distanceTo(playerPos);
-						
-						if(req.player.hasEncountered(p.getUID()))
-							continue;
-						
-						// XXX: pokemon has timed out but not cleaned up yet
-						//      (This should not happen)
-						if(p.disappearTimestamp <= ts){
-							Log.w("MapUpdate", "Found zombie: " + p);
-							continue;
-						}
-						
-						if(dist < settings.mapEncounterRange)
+			if(ci != null){
+				mc.setCurrentTimestampMs(ci.ts);
+				while(ci.objs.hasNext()){
+					MapObjectInfo m = ci.objs.next();
+					UniqueLocatable u = m.obj;
+					if(m.type == MapObjectInfo.SPAWNPOINT){
+						sp.clear().setLatitude(u.getLatitude()).setLongitude(u.getLongitude());
+						mc.addSpawnPoints(sp);
+					}else if((m.type & MapObjectInfo.POKEMON) != 0){
+						MapPokemon p = (MapPokemon) u;
+						if((m.type & MapObjectInfo.CATCHABLE_POKEMON) != 0)
 							mc.addCatchablePokemons(ProtobufMapper.mapPokemon(mp, p));
-						
-						if(dist < settings.mapPokemonVisibleRange)
+						if((m.type & MapObjectInfo.WILD_POKEMON) != 0)
 							mc.addWildPokemons(ProtobufMapper.wildPokemon(wp, p)
-								.setPokemonData(PokemonData.newBuilder().setPokemonIdValue(p.pokemon.def.id)));
-							
-						// I think this works, but there is a bug in the client (at least versions before 0.31.0)
-						// Catchable and wild pokemon disappear correctly (they have expire timestamp, and time_till_hidden)
-						// But nearby pokemon that are not in visible range will haunt even after disappearing
-						// The client seems to never clear them
-						// (or there is a bug somewhere in sending nearby pokemon, 
-						//  but I got the same results when I tested on official servers)
-						if(dist < settings.mapPokeNavRange)
-							mc.addNearbyPokemons(ProtobufMapper.nearbyPokemon(np, p, playerPos));
-						
-						//System.out.println("poke: " + o + " | dist=" + dist);
+									.setPokemonData(PokemonData.newBuilder().setPokemonIdValue(p.pokemon.def.id)));
+						if((m.type & MapObjectInfo.NEARBY_POKEMON) != 0)
+							mc.addNearbyPokemons(ProtobufMapper.nearbyPokemon(np, p, pos));
 					}
 				}
+				
+			}else{
+				mc.setCurrentTimestampMs(ts);
 			}
 			
 			resp.addMapCells(mc);
 		}
 		
-		resp.setStatus(MapObjectsStatus.SUCCESS);
-		return resp;
+		return resp.setStatus(MapObjectsStatus.SUCCESS);
 	}
 
 }

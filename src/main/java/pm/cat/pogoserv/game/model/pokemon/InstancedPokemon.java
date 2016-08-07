@@ -42,11 +42,11 @@ public class InstancedPokemon extends Pokemon {
 	}
 	
 	public float getCpMultiplier(){
-		return owner.getGame().settings.playerCpMultiplier[capturedLevel];
+		return owner.getGame().getSettings().playerCpMultiplier[capturedLevel/2];
 	}
 	
 	public float getEffectiveCpMultiplier(){
-		return owner.getGame().settings.playerCpMultiplier[level];
+		return owner.getGame().getSettings().playerCpMultiplier[level/2];
 	}
 	
 	public float getAdditionalCpMultiplier(){

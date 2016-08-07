@@ -1,41 +1,46 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
-import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.DownloadSettingsMessage;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
+import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.DownloadSettingsMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.DownloadSettingsResponse;
 import POGOProtos.Settings.POGOProtosSettings.FortSettings;
 import POGOProtos.Settings.POGOProtosSettings.GlobalSettings;
 import POGOProtos.Settings.POGOProtosSettings.InventorySettings;
 import POGOProtos.Settings.POGOProtosSettings.MapSettings;
 import pm.cat.pogoserv.game.config.GameSettings;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.event.impl.DownloadSettingsEvent;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class DownloadSettingsHandler implements RequestHandler {
+public class DownloadSettingsHandler implements RequestMapper<DownloadSettingsEvent> {
+	
+	@Override
+	public DownloadSettingsEvent parse(Request req, RequestEnvelope re) throws IOException {
+		return new DownloadSettingsEvent(
+				DownloadSettingsMessage.parseFrom(req.getRequestMessage()).getHash());
+	}
 
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		DownloadSettingsMessage m = DownloadSettingsMessage.parseFrom(r.getRequestMessage());
-		GameSettings gs = req.game.settings;
-		DownloadSettingsResponse.Builder resp = DownloadSettingsResponse.newBuilder()
-				.setHash(gs.clientSettingsHash);
-		
-		if(m.getHash() == null || !m.getHash().equals(gs.clientSettingsHash)){
-			resp.setSettings(GlobalSettings.newBuilder()
-				.setFortSettings(getFortSettings(gs))
-				.setMapSettings(getMapSettings(gs))
-				// Level settings seems to be currently unused ?
-				.setInventorySettings(getInventorySettings(gs))
-				.setMinimumClientVersion(gs.minClientVersion));
+	public Object write(DownloadSettingsEvent re) throws IOException {
+		DownloadSettingsResponse.Builder resp = DownloadSettingsResponse.newBuilder();
+		if(re.newHash != null){
+			GameSettings gs = re.settings;
+			resp.setHash(re.newHash)
+				.setSettings(GlobalSettings.newBuilder()
+						.setFortSettings(getFortSettings(gs))
+						.setMapSettings(getMapSettings(gs))
+						// Level settings seems to be currently unused ?
+						.setInventorySettings(getInventorySettings(gs))
+						.setMinimumClientVersion(gs.minClientVersion));
+		}else{
+			resp.setHash(re.hash);
 		}
-		
 		return resp;
 	}
 	
-	protected FortSettings.Builder getFortSettings(GameSettings gs){
+	private FortSettings.Builder getFortSettings(GameSettings gs){
 		return FortSettings.newBuilder()
 				.setInteractionRangeMeters(gs.fortInteractionRange)
 				.setMaxTotalDeployedPokemon(gs.fortMaxTotalDeployedPokemon)
@@ -45,7 +50,7 @@ public class DownloadSettingsHandler implements RequestHandler {
 				.setFarInteractionRangeMeters(gs.fortFarInterctionRange);
 	}
 	
-	protected MapSettings.Builder getMapSettings(GameSettings gs){
+	private MapSettings.Builder getMapSettings(GameSettings gs){
 		return MapSettings.newBuilder()
 				.setPokemonVisibleRange(gs.mapPokemonVisibleRange)
 				.setPokeNavRangeMeters(gs.mapPokeNavRange)
@@ -56,7 +61,7 @@ public class DownloadSettingsHandler implements RequestHandler {
 				.setGoogleMapsApiKey(gs.mapGoogleMapsApiKey);
 	}
 	
-	protected InventorySettings.Builder getInventorySettings(GameSettings gs){
+	private InventorySettings.Builder getInventorySettings(GameSettings gs){
 		return InventorySettings.newBuilder()
 				.setMaxPokemon(gs.invMaxPokemon)
 				.setMaxBagItems(gs.invMaxBagItems)

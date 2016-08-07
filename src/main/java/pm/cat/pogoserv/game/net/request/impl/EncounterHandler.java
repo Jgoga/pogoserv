@@ -1,89 +1,39 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
-import POGOProtos.Data.Capture.POGOProtosDataCapture.CaptureProbability;
 import POGOProtos.Data.POGOProtosData.PokemonData;
-import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemId;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.WildPokemon;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.EncounterMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.EncounterResponse;
-import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.game.model.player.InventoryPokemon;
-import pm.cat.pogoserv.game.model.player.Player;
-import pm.cat.pogoserv.game.model.world.Encounter;
-import pm.cat.pogoserv.game.model.world.MapObject;
-import pm.cat.pogoserv.game.model.world.MapPokemon;
-import pm.cat.pogoserv.game.model.world.SpawnPoint;
+import pm.cat.pogoserv.game.event.impl.EncounterEvent;
 import pm.cat.pogoserv.game.net.ProtobufMapper;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class EncounterHandler implements RequestHandler {
+public class EncounterHandler implements RequestMapper<EncounterEvent> {
 
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		EncounterMessage m = EncounterMessage.parseFrom(r.getRequestMessage());
-		EncounterResponse.Builder resp = EncounterResponse.newBuilder();
-		
-		String spawnPointId = m.getSpawnPointId();
-		MapObject spawnM = req.game.world.objectForStr(spawnPointId);
-		if(!(spawnM instanceof SpawnPoint)){
-			Log.w("Encounter", "Not a spawn point: " + spawnM);
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_FOUND);
+	public EncounterEvent parse(Request req, RequestEnvelope re) throws IOException {
+		EncounterMessage m = EncounterMessage.parseFrom(req.getRequestMessage());
+		return new EncounterEvent(m.getEncounterId(), m.getSpawnPointId());
+	}
+
+	@Override
+	public Object write(EncounterEvent re) throws IOException {
+		EncounterResponse.Builder resp = EncounterResponse.newBuilder()
+				.setStatus(re.status);
+		if(re.status == EncounterResponse.Status.ENCOUNTER_SUCCESS){
+			resp.setWildPokemon(ProtobufMapper.wildPokemon(WildPokemon.newBuilder(), re.mapPokemon)
+					.setPokemonData(ProtobufMapper.instancedPokemon(PokemonData.newBuilder(), re.instancedPokemon)))
+				.setBackground(re.background);
+				// TODO .setCaptureProbability
 		}
-		
-		SpawnPoint spawn = (SpawnPoint) spawnM;
-		MapPokemon mp = spawn.getActivePokemon();
-		
-		if(mp == null){
-			Log.w("Encounter", "Null pokemon");
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_FOUND);
-		}
-			
-		if(System.currentTimeMillis() >= mp.disappearTimestamp){
-			Log.w("Encounter", "Requested already disappeared pokemon");
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_CLOSED);
-		}
-			
-		long uid = mp.getUID();
-		if(uid != m.getEncounterId()){
-			Log.w("Encounter", "Invalid encounter id. actual=%x, request=%x", uid, m.getEncounterId());
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_FOUND);
-		}
-		
-		Player p = req.player;
-		if(p.hasEncountered(uid)){
-			Log.w("Encounter", "Encounter (%x, %x) already happened.", p.getUID(), uid);
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_ALREADY_HAPPENED);
-		}
-		
-		if(p.distanceTo(mp) > req.game.settings.mapEncounterRange){
-			Log.w("Encounter", "Too far. Distance=%.2f, max=%.2f", p.distanceTo(mp), req.game.settings.mapEncounterRange);
-			return resp.setStatus(EncounterResponse.Status.ENCOUNTER_NOT_IN_RANGE);
-		}
-		
-		if(p.inventory.uniqueItemCount() >= p.inventory.maxPokemonStorage){
-			Log.w("Encounter", "No space (%d)", p.inventory.uniqueItemCount());
-			return resp.setStatus(EncounterResponse.Status.POKEMON_INVENTORY_FULL);
-		}
-		
-		InventoryPokemon poke = req.game.pokegen.createEncounter(mp, p, req.game.uidManager.next());
-		poke.setFullStamina();
-		poke.capturedCellId = mp.getS2CellId().id();
-		p.currentEncounter = new Encounter(spawn, poke, mp.getUID());
-		
-		return resp.setStatus(EncounterResponse.Status.ENCOUNTER_SUCCESS)
-			.setWildPokemon(
-					ProtobufMapper.wildPokemon(WildPokemon.newBuilder(), mp)
-					.setPokemonData(ProtobufMapper.instancedPokemon(PokemonData.newBuilder(), poke)))
-			.setBackground(EncounterResponse.Background.PARK)
-			.setCaptureProbability(getCaptureProbability(mp));
+		return resp;
 	}
 	
-	// TODO: This needs research. How is this calculated/determined?
+	/* TODO - is this needed
 	private CaptureProbability.Builder getCaptureProbability(MapPokemon mp){
 		CaptureProbability.Builder ret = CaptureProbability.newBuilder();
 		ret.addPokeballType(ItemId.ITEM_POKE_BALL);
@@ -94,5 +44,6 @@ public class EncounterHandler implements RequestHandler {
 		ret.addCaptureProbability(1.0f);
 		return ret;
 	}
+	*/
 
 }

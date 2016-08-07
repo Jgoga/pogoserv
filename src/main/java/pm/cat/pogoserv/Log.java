@@ -45,7 +45,7 @@ public class Log {
 	}
 	
 	public static void e(String tag, Throwable e){
-		log(err, tag, "%s", e.getClass().getSimpleName());
+		log(err, COLOR_ERR, tag, "%s", e.getClass().getSimpleName());
 		e.printStackTrace(err);
 	}
 	

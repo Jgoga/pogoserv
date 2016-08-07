@@ -1,18 +1,21 @@
 package pm.cat.pogoserv.game.model.world;
 
 import pm.cat.pogoserv.game.Game;
-import pm.cat.pogoserv.util.Locatable;
-import pm.cat.pogoserv.util.Unique;
 
-public class MapObject implements Unique, Locatable {
+public class MapObject implements UniqueLocatable {
 
 	private final long uid;
 	protected double latitude, longitude;
+	protected Game game;
 	
-	public MapObject(double latitude, double longitude, long uid){
+	public MapObject(long uid, double latitude, double longitude){
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.uid = uid;
+	}
+	
+	public void init(Game game){
+		this.game = game;
 	}
 	
 	@Override
@@ -39,8 +42,5 @@ public class MapObject implements Unique, Locatable {
 	public String toString(){
 		return String.format("(%.4f, %.4f): 0x%x", latitude, longitude, uid);
 	}
-	
-	public void onAdd(Game game, WorldCell cell){ }
-	public void onRemove(Game game, WorldCell cell){ }
 	
 }

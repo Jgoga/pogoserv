@@ -1,38 +1,43 @@
 package pm.cat.pogoserv.game.model.world;
 
-import pm.cat.pogoserv.game.Game;
+import pm.cat.pogoserv.game.config.GameSettings;
 import pm.cat.pogoserv.game.model.pokemon.Pokemon;
 import pm.cat.pogoserv.util.Random;
 
-// TODO: Official spawnpoint ids seem to be non-zero bits of level 15 s2cellid + something
 public abstract class SpawnPoint extends MapObject {
 
 	protected MapPokemon activePokemon = null;
-	public final String spawnPointId;
 	
-	public SpawnPoint(double latitude, double longitude, long uid) {
-		super(latitude, longitude, uid);
-		this.spawnPointId = World.objidString(getS2CellId().parent(WorldCell.LEVEL).id(), uid);
+	public SpawnPoint(long uid, double latitude, double longitude) {
+		super(uid, latitude, longitude);
 	}
 	
-	public MapPokemon spawnPokemon(Game game, Pokemon p, long dur){
-		return spawnPokemon(game, p, dur,
-			latitude + game.settings.spawnOffsetStdDev * Random.nextGaussian(),
-			longitude + game.settings.spawnOffsetStdDev * Random.nextGaussian());
+	public MapPokemon spawnPokemon(Pokemon p, long dur){
+		GameSettings settings = game.getSettings();
+		return spawnPokemon(
+			latitude + settings.spawnOffsetStdDev * Random.nextGaussian(),
+			longitude + settings.spawnOffsetStdDev * Random.nextGaussian(),
+			p, Random.nextFloat(0.2f, 1.0f), dur);
 	}
 	
-	public MapPokemon spawnPokemon(Game game, Pokemon p, long dur, double lat, double lng){
-		if(activePokemon != null){
-			despawnPokemon(game);
-		}
+	public MapPokemon spawnPokemon(double lat, double lng, Pokemon p, float parm, long dur){
+		MapPokemon mp = new MapPokemon(
+			game.getUidGen().next(), lat, lng, this, p, parm, dur);
+		mp.init(game);
+		return spawnPokemon(mp);
+	}
+	
+	public synchronized MapPokemon spawnPokemon(MapPokemon mp){
+		if(activePokemon != null)
+			despawnPokemon();
 		
-		game.submit(this::despawnPokemon, dur);
-		return activePokemon = game.world.addObject(
-				new MapPokemon(this, p, Random.nextFloat(0.2f, 1.0f), dur, lat, lng, game.uidManager.next()));
+		activePokemon = mp;
+		game.scheduleAt(this::despawnPokemon, mp.disappearTimestamp);
+		return game.getWorld().add(mp);
 	}
 	
-	public void despawnPokemon(Game game){
-		game.world.removeObject(activePokemon);
+	public synchronized void despawnPokemon(){
+		game.getWorld().remove(activePokemon);
 		activePokemon = null;
 	}
 	

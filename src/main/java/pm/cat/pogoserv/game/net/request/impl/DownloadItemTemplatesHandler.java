@@ -1,33 +1,22 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
-import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.DownloadItemTemplatesResponse;
-import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
-import pm.cat.pogoserv.util.Util;
+import pm.cat.pogoserv.game.event.impl.DownloadItemTemplatesEvent;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class DownloadItemTemplatesHandler implements RequestHandler {
-	
-	private DownloadItemTemplatesResponse resp = null;
+public class DownloadItemTemplatesHandler implements RequestMapper<DownloadItemTemplatesEvent> {
 
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		if(resp == null){
-			Log.d("Templates", "Caching item templates response");
-			try{
-				byte[] b = Util.readFile(req.game.settings.dataPath + "/GAME_MASTER.protobuf");
-				resp = DownloadItemTemplatesResponse.parseFrom(b);
-				Log.d("Templates", "Cached item templates (%dK)", b.length/1000);
-			}catch(Exception e){
-				Log.e("Templates", e);
-			}
-		}
-		
-		return resp;
+	public DownloadItemTemplatesEvent parse(Request req, RequestEnvelope re) throws IOException {
+		return new DownloadItemTemplatesEvent();
+	}
+
+	@Override
+	public Object write(DownloadItemTemplatesEvent re) throws IOException {
+		return re.resp;
 	}
 
 }

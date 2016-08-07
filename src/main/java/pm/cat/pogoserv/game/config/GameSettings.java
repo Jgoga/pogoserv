@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.io.Files;
+import com.google.common.primitives.Floats;
+import com.google.common.primitives.Ints;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import POGOProtos.Data.POGOProtosData.AssetDigestEntry;
@@ -31,8 +34,8 @@ import POGOProtos.Settings.Master.POGOProtosSettingsMaster.PokemonUpgradeSetting
 import POGOProtos.Settings.Master.POGOProtosSettingsMaster.TypeEffectiveSettings;
 import POGOProtos.Settings.Master.Pokemon.POGOProtosSettingsMasterPokemon.EncounterAttributes;
 import POGOProtos.Settings.Master.Pokemon.POGOProtosSettingsMasterPokemon.StatsAttributes;
+import pm.cat.pogoserv.Config;
 import pm.cat.pogoserv.Log;
-import pm.cat.pogoserv.core.Constants;
 import pm.cat.pogoserv.util.Util;
 
 public class GameSettings {
@@ -96,7 +99,7 @@ public class GameSettings {
 	public int playerMaxEncounterLevel;
 	
 	/* Type settings (0 = none) */
-	public final float[][] typeEffectiveness = new float[Constants.NUM_TYPES+1][Constants.NUM_TYPES+1];
+	public final float[][] typeEffectiveness = new float[Config.NUM_TYPES+1][Config.NUM_TYPES+1];
 	
 	/* Evolution ("upgrade") settings */
 	public int upgradesPerLevel;
@@ -156,13 +159,13 @@ public class GameSettings {
 			String name = f.getName();
 			
 			if(name.equals("GAME_MASTER.protobuf"))
-				parseGameMaster(Util.readFile(f));
+				parseGameMaster(Files.toByteArray(f));
 			else if(name.equals("CLIENT_SETTINGS.protobuf"))
-				parseClientSettings(Util.readFile(f));
+				parseClientSettings(Files.toByteArray(f));
 			else if(name.startsWith("ASSET_DIGEST")){
 				String[] s = name.split("\\.");
 				int plat = Integer.parseInt(s[2]);
-				parseAssetDigests(plat, Util.readFile(f));
+				parseAssetDigests(plat, Files.toByteArray(f));
 			}
 		}
 	}
@@ -181,9 +184,9 @@ public class GameSettings {
 			
 			if(id.equals("GYM_LEVEL_SETTINGS")){
 				GymLevelSettings gls = it.getGymLevel();
-				gymRequiredExp = Util.toIntArray(gls.getRequiredExperienceList());
-				gymLeaderSlots = Util.toIntArray(gls.getRequiredExperienceList());
-				gymTrainerSlots = Util.toIntArray(gls.getTrainerSlotsList());
+				gymRequiredExp = Ints.toArray(gls.getRequiredExperienceList());
+				gymLeaderSlots = Ints.toArray(gls.getLeaderSlotsList());
+				gymTrainerSlots = Ints.toArray(gls.getTrainerSlotsList());
 				Log.d("Settings", "Loaded gym settings: %d required exps, %d leader slots, %d trainer slots",
 						gymRequiredExp.length, gymLeaderSlots.length, gymTrainerSlots.length);
 			}
@@ -227,9 +230,9 @@ public class GameSettings {
 			
 			if(id.equals("PLAYER_LEVEL_SETTINGS")){
 				PlayerLevelSettings ls = it.getPlayerLevel();
-				playerRankNum = Util.toIntArray(ls.getRankNumList());
-				playerRequiredExp = Util.toIntArray(ls.getRequiredExperienceList());
-				playerCpMultiplier = Util.toFloatArray(ls.getCpMultiplierList());
+				playerRankNum = Ints.toArray(ls.getRankNumList());
+				playerRequiredExp = Ints.toArray(ls.getRequiredExperienceList());
+				playerCpMultiplier = Floats.toArray(ls.getCpMultiplierList());
 				playerMaxEggLevel = ls.getMaxEggPlayerLevel();
 				playerMaxEncounterLevel = ls.getMaxEncounterPlayerLevel();
 				Log.d("Settings", "Loaded player level settings");
@@ -239,7 +242,7 @@ public class GameSettings {
 				TypeEffectiveSettings te = it.getTypeEffective();
 				int type = te.getAttackTypeValue();
 				typeEffectiveness[type][0] = 1; // Type --> None
-				for(int j=0;j<Constants.NUM_TYPES;j++){
+				for(int j=0;j<Config.NUM_TYPES;j++){
 					typeEffectiveness[type][j+1] = te.getAttackScalar(j);
 				}
 				Log.d("Settings", "Loaded type %s, attack scalar: %s", id, Arrays.toString(typeEffectiveness[type]));
@@ -249,8 +252,8 @@ public class GameSettings {
 				PokemonUpgradeSettings us = it.getPokemonUpgrades();
 				upgradesPerLevel = us.getUpgradesPerLevel();
 				upgradeAllowedLevelsAbovePlayer = us.getAllowedLevelsAbovePlayer();
-				upgradeCandyCost = Util.toIntArray(us.getCandyCostList());
-				upgradeStardustCost = Util.toIntArray(us.getStardustCostList());
+				upgradeCandyCost = Ints.toArray(us.getCandyCostList());
+				upgradeStardustCost = Ints.toArray(us.getStardustCostList());
 				Log.d("Settings", "Loaded upgrade settings (max level: %d)", upgradeCandyCost.length);
 			}
 			
@@ -276,7 +279,7 @@ public class GameSettings {
 				p.dodgeEnergyDelta = s.getDodgeEnergyDelta();
 				p.quickMoves = ps.getQuickMovesList().toArray(new PokemonMove[ps.getQuickMovesCount()]);
 				p.chargeMoves = ps.getCinematicMovesList().toArray(new PokemonMove[ps.getCinematicMovesCount()]);
-				p.animationTime = Util.toFloatArray(ps.getAnimationTimeList());
+				p.animationTime = Floats.toArray(ps.getAnimationTimeList());
 				p.evolutionIds = new int[ps.getEvolutionIdsCount()];
 				for(int j=0;j<p.evolutionIds.length;j++)
 					p.evolutionIds[j] = ps.getEvolutionIdsValue(j);
@@ -321,7 +324,7 @@ public class GameSettings {
 			
 		}
 		
-		for(int i=0;i<Constants.NUM_TYPES+1;i++)
+		for(int i=0;i<Config.NUM_TYPES+1;i++)
 			typeEffectiveness[0][i] = 0;
 		
 		Log.d("Settings", "Parsed game master!");

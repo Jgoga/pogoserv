@@ -1,7 +1,6 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
+import java.io.IOException;
 
 import POGOProtos.Data.POGOProtosData.PokemonData;
 import POGOProtos.Data.Player.POGOProtosDataPlayer.PlayerStats;
@@ -9,33 +8,43 @@ import POGOProtos.Inventory.POGOProtosInventory.InventoryDelta;
 import POGOProtos.Inventory.POGOProtosInventory.InventoryItem;
 import POGOProtos.Inventory.POGOProtosInventory.InventoryItemData;
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemData;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.GetInventoryMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetInventoryResponse;
+import pm.cat.pogoserv.game.event.impl.GetInventoryEvent;
 import pm.cat.pogoserv.game.model.player.InventoryPokemon;
 import pm.cat.pogoserv.game.model.player.Item;
 import pm.cat.pogoserv.game.model.player.PlayerInfo;
 import pm.cat.pogoserv.game.net.ProtobufMapper;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 import pm.cat.pogoserv.util.TimestampVarPool;
 import pm.cat.pogoserv.util.TimestampVarPool.TSNode;
 
-public class GetInventoryHandler implements RequestHandler {
-	
+public class GetInventoryHandler implements RequestMapper<GetInventoryEvent> {
+
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		GetInventoryMessage gim = GetInventoryMessage.parseFrom(r.getRequestMessage());
-		long since = gim.getLastTimestampMs();
+	public GetInventoryEvent parse(Request req, RequestEnvelope re) throws IOException {
+		return new GetInventoryEvent(GetInventoryMessage.parseFrom(req.getRequestMessage()).getLastTimestampMs());
+	}
+
+	@Override
+	public Object write(GetInventoryEvent re) throws IOException {
+		long since = re.lastTimestamp;
+		TimestampVarPool pool = re.inventory;
+		
+		GetInventoryResponse.Builder resp = GetInventoryResponse.newBuilder();
+		if(pool == null)
+			return resp.setSuccess(false);
+		TSNode<?> cur = pool.getTail();
+		if(cur == null)
+			return null;
+		
 		InventoryDelta.Builder delta = InventoryDelta.newBuilder();
-		TimestampVarPool pool = req.player.getPool();
 		InventoryItem.Builder item = InventoryItem.newBuilder();
 		InventoryItemData.Builder idata = InventoryItemData.newBuilder();
 		PlayerStats.Builder statsBuilder = null;
 		
-		TSNode<?> cur = pool.getTail();
-		if(cur == null)
-			return null;
 		
 		for(;cur!=null&&cur.getTimestamp()>=since;cur=cur.getPrev()){
 			Object ref = cur.read();
@@ -81,9 +90,9 @@ public class GetInventoryHandler implements RequestHandler {
 		delta.setOriginalTimestampMs(since);
 		delta.setNewTimestampMs(pool.getTail().getTimestamp() + 1);
 		
-		return GetInventoryResponse.newBuilder()
-			.setSuccess(true)
-			.setInventoryDelta(delta);
+		return resp
+				.setSuccess(true)
+				.setInventoryDelta(delta);
 	}
 	
 	protected void addPlayerStat(PlayerStats.Builder destBuilder, PlayerInfo.Stat<?> s){

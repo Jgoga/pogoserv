@@ -1,9 +1,12 @@
 package pm.cat.pogoserv.game.config;
 
+import com.google.common.primitives.Floats;
+
 import POGOProtos.Enums.POGOProtosEnums.ItemEffect;
 import POGOProtos.Enums.POGOProtosEnums.PokemonType;
 import POGOProtos.Inventory.POGOProtosInventory.EggIncubatorType;
 import POGOProtos.Inventory.POGOProtosInventory.InventoryUpgradeType;
+import POGOProtos.Settings.Master.POGOProtosSettingsMaster.ItemSettings;
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.EggIncubatorAttributes;
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.ExperienceBoostAttributes;
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.FoodAttributes;
@@ -12,8 +15,6 @@ import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.InventoryUpg
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.PokeballAttributes;
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.PotionAttributes;
 import POGOProtos.Settings.Master.Item.POGOProtosSettingsMasterItem.ReviveAttributes;
-import POGOProtos.Settings.Master.POGOProtosSettingsMaster.ItemSettings;
-import pm.cat.pogoserv.util.Util;
 
 // The attribute thing isn't really beautiful, I will refactor it later
 // maybe subclasses or something
@@ -121,7 +122,7 @@ public class ItemDef {
 		
 		public FoodAttrs(FoodAttributes src){
 			this.effects = src.getItemEffectList().toArray(new ItemEffect[src.getItemEffectCount()]);
-			this.effectPct = Util.toFloatArray(src.getItemEffectPercentList());
+			this.effectPct = Floats.toArray(src.getItemEffectPercentList());
 			this.growthPct = src.getGrowthPercent();
 		}
 	}

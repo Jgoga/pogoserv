@@ -1,38 +1,46 @@
 package pm.cat.pogoserv.game.net.request.impl;
 
+import java.io.IOException;
+
 import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Data.POGOProtosData.AssetDigestEntry;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes.RequestEnvelope;
 import POGOProtos.Networking.Requests.POGOProtosNetworkingRequests.Request;
 import POGOProtos.Networking.Requests.Messages.POGOProtosNetworkingRequestsMessages.GetAssetDigestMessage;
 import POGOProtos.Networking.Responses.POGOProtosNetworkingResponses.GetAssetDigestResponse;
 import pm.cat.pogoserv.game.config.AssetDef;
-import pm.cat.pogoserv.game.net.request.GameRequest;
-import pm.cat.pogoserv.game.net.request.RequestHandler;
+import pm.cat.pogoserv.game.event.impl.GetAssetDigestEvent;
+import pm.cat.pogoserv.game.net.request.RequestMapper;
 
-public class GetAssetDigestHandler implements RequestHandler {
+public class GetAssetDigestHandler implements RequestMapper<GetAssetDigestEvent> {
 
 	@Override
-	public MessageLiteOrBuilder run(GameRequest req, Request r) throws InvalidProtocolBufferException {
-		GetAssetDigestMessage m = GetAssetDigestMessage.parseFrom(r.getRequestMessage());
+	public GetAssetDigestEvent parse(Request req, RequestEnvelope re) throws IOException {
+		GetAssetDigestMessage m = GetAssetDigestMessage.parseFrom(req.getRequestMessage());
+		return new GetAssetDigestEvent(
+				m.getPlatform(),
+				m.getDeviceManufacturer(),
+				m.getDeviceModel(),
+				m.getLocale(),
+				m.getAppVersion());
+	}
+
+	@Override
+	public Object write(GetAssetDigestEvent re) throws IOException {
 		GetAssetDigestResponse.Builder resp = GetAssetDigestResponse.newBuilder()
-				.setTimestampMs(1467338276561000L);
+				.setTimestampMs(re.timestamp);
 		AssetDigestEntry.Builder e = AssetDigestEntry.newBuilder();
-		int plat = m.getPlatformValue();
-		for(AssetDef as : req.game.settings.getAssets()){
-			if(as.platform != plat)
-				continue;
+		while(re.assets.hasNext()){
+			AssetDef a = re.assets.next();
 			resp.addDigest(e.clear()
-					.setAssetId(as.id)
-					.setBundleName(as.bundleName)
-					.setVersion(as.version)
-					.setChecksum(as.checksum)
-					.setSize(as.size)
-					.setKey(ByteString.copyFrom(as.key)));
+					.setAssetId(a.id)
+					.setBundleName(a.bundleName)
+					.setVersion(a.version)
+					.setChecksum(a.checksum)
+					.setSize(a.size)
+					.setKey(ByteString.copyFrom(a.key)));
 		}
-		
 		return resp;
 	}
 	

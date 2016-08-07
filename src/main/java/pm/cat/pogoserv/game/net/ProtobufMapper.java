@@ -1,17 +1,24 @@
 package pm.cat.pogoserv.game.net;
 
 import com.google.common.geometry.S2LatLng;
+import com.google.protobuf.MessageLite;
+import com.google.protobuf.MessageLiteOrBuilder;
 
 import POGOProtos.Data.POGOProtosData.PokemonData;
+import POGOProtos.Data.Capture.POGOProtosDataCapture.CaptureAward;
 import POGOProtos.Inventory.Item.POGOProtosInventoryItem.ItemData;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.NearbyPokemon;
 import POGOProtos.Map.Pokemon.POGOProtosMapPokemon.WildPokemon;
+import POGOProtos.Networking.Envelopes.POGOProtosNetworkingEnvelopes;
+import pm.cat.pogoserv.game.model.player.Award;
 import pm.cat.pogoserv.game.model.player.InventoryPokemon;
 import pm.cat.pogoserv.game.model.player.Item;
+import pm.cat.pogoserv.game.model.player.Award.AwardEntry;
 import pm.cat.pogoserv.game.model.pokemon.InstancedPokemon;
 import pm.cat.pogoserv.game.model.pokemon.Pokemon;
 import pm.cat.pogoserv.game.model.world.MapPokemon;
+import pm.cat.pogoserv.game.session.AuthTicket;
 
 public class ProtobufMapper {
 	
@@ -87,7 +94,7 @@ public class ProtobufMapper {
 			.setLastModifiedTimestampMs(System.currentTimeMillis()) 
 			.setLatitude(mp.getLatitude())
 			.setLongitude(mp.getLongitude())
-			.setSpawnPointId(mp.source.spawnPointId)
+			.setSpawnPointId(mp.source.getUniqueStr())
 			.setTimeTillHiddenMs((int) (mp.disappearTimestamp - System.currentTimeMillis()));
 		
 		return dest;
@@ -102,12 +109,29 @@ public class ProtobufMapper {
 	
 	public static POGOProtosMapPokemon.MapPokemon.Builder mapPokemon(POGOProtosMapPokemon.MapPokemon.Builder dest, MapPokemon mp){
 		return dest
-			.setSpawnPointId(mp.source.spawnPointId)
+			.setSpawnPointId(mp.source.getUniqueStr())
 			.setEncounterId(mp.getUID())
 			.setPokemonIdValue(mp.pokemon.def.id)
 			.setExpirationTimestampMs(mp.disappearTimestamp)
 			.setLatitude(mp.getLatitude())
 			.setLongitude(mp.getLongitude());
+	}
+	
+	public static POGOProtosNetworkingEnvelopes.AuthTicket.Builder authTicket(POGOProtosNetworkingEnvelopes.AuthTicket.Builder dest, AuthTicket src){
+		return dest
+				.setStart(src.getStart())
+				.setEnd(src.getEnd())
+				.setExpireTimestampMs(src.getExpirationTimestamp());
+	}
+	
+	public static CaptureAward.Builder captureAward(CaptureAward.Builder dest, Award a){
+		for(AwardEntry e : a){
+			dest.addActivityTypeValue(e.activity)
+				.addXp(e.exp)
+				.addCandy(e.candy)
+				.addStardust(e.stardust);
+		}
+		return dest;
 	}
 	
 }
